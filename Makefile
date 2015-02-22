@@ -2,7 +2,7 @@
 #
 #
 
-LIBNAME = librf24
+LIBNAME = libnrf24
 TARGET ?= stm32f4
 
 #
