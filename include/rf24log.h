@@ -21,25 +21,25 @@ extern int printf(const char *fmt, ...);
 #endif
 
 #if LOG_LEVEL > 0
-#define rf24_err(...)			printf(RF24TAG __VA_ARGS__)
+#define rf24_err(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_err(...) ;
 #endif
 
 #if LOG_LEVEL > 1
-#define rf24_info(...)			printf(RF24TAG __VA_ARGS__)
+#define rf24_info(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_info(...) ;
 #endif
 
 #if LOG_LEVEL > 2
-#define rf24_debug(...)			printf(RF24TAG __VA_ARGS__)
+#define rf24_debug(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_debug(...) ;
 #endif
 
 #if LOG_LEVEL > 3
-#define rf24_trace(...)			printf(RF24TAG __VA_ARGS__)
+#define rf24_trace(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_trace(...) ;
 #endif
