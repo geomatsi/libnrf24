@@ -6,7 +6,7 @@
 
 #include <rf24delay.h>
 #include <rf24misc.h>
-#include <rf24dbg.h>
+#include <rf24log.h>
 
 #define COMPONENT "rf24"
 
@@ -130,7 +130,7 @@ uint8_t rf24_writeout_address(struct rf24 *r, uint8_t reg, const uint8_t* buf, u
 uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t value)
 {
 	uint8_t status;
-	trace("write_register(%02x,%02x)\n", reg, value);
+	rf24_trace("write_register(%02x,%02x)\n", reg, value);
 	rf24_csn(0);
 	status = rf24_spi_xfer( W_REGISTER | ( REGISTER_MASK & reg ) );
 	rf24_spi_xfer(value);
@@ -156,7 +156,7 @@ uint8_t rf24_write_payload(struct rf24 *r, const void* buf, uint8_t len)
 	const uint8_t* current = (uint8_t*) buf;
 	uint8_t data_len = min_t(uint8_t, len, r->payload_size);
 	uint8_t blank_len = rf24_has_dynamic_payload(r) ? 0 : r->payload_size - data_len;
-	dbg("Writing %u bytes %u blanks\n", data_len, blank_len);
+	rf24_debug("Writing %u bytes %u blanks\n", data_len, blank_len);
 	rf24_csn(0);
 	status = rf24_spi_xfer( W_TX_PAYLOAD );
 	while ( data_len-- )
@@ -183,7 +183,7 @@ uint8_t rf24_read_payload(struct rf24 *r, void* buf, uint8_t len)
 	uint8_t* current = (uint8_t*) buf;
 	uint8_t data_len = min_t(uint8_t, len, r->payload_size);
 	uint8_t blank_len = rf24_has_dynamic_payload(r) ? 0 : r->payload_size - data_len;
-	dbg("Reading %u bytes %u blanks\n", data_len, blank_len);
+	rf24_debug("Reading %u bytes %u blanks\n", data_len, blank_len);
 	rf24_csn(0);
 	status = rf24_spi_xfer( R_RX_PAYLOAD );
 	while ( data_len-- )
@@ -254,7 +254,7 @@ uint8_t rf24_get_status(struct rf24 *r)
  */
 void rf24_print_status(uint8_t status)
 {
-	printk("STATUS\t\t = 0x%02x RX_DR=%x TX_DS=%x MAX_RT=%x RX_P_NO=%x TX_FULL=%x\n",
+	rf24_info("STATUS\t\t = 0x%02x RX_DR=%x TX_DS=%x MAX_RT=%x RX_P_NO=%x TX_FULL=%x\n",
 	     status,
 	     (status & (1 << RX_DR))   ? 1 : 0,
 	     (status & (1 << TX_DS))   ? 1 : 0,
@@ -274,7 +274,7 @@ void rf24_print_status(uint8_t status)
  */
 void rf24_print_observe_tx(struct rf24 *r, uint8_t value)
 {
-	printk("OBSERVE_TX=%02x: POLS_CNT=%x ARC_CNT=%x\n",
+	rf24_info("OBSERVE_TX=%02x: POLS_CNT=%x ARC_CNT=%x\n",
 	     value,
 	     (value >> PLOS_CNT) & 0xf,
 	     (value >> ARC_CNT) & 0xf
@@ -296,7 +296,7 @@ void rf24_print_observe_tx(struct rf24 *r, uint8_t value)
 void rf24_print_byte_register(struct rf24 *r, const char* name, uint8_t reg, uint8_t qty)
 {
 	while (qty--) {
-		printk("%s @ *0x%02x = 0x%02x\n",
+		rf24_info("%s @ *0x%02x = 0x%02x\n",
 		     name, reg, rf24_read_register(r, reg));
 		reg++;
 	}
@@ -320,7 +320,7 @@ void rf24_print_address_register(struct rf24 *r, const char* name, uint8_t reg, 
 	{
 		uint8_t buffer[5];
 		rf24_readout_register(r, reg++, buffer, sizeof(buffer));
-		printk("%s @ *%02x = %02x:%02x:%02x:%02x:%02x\n",
+		rf24_info("%s @ *%02x = %02x:%02x:%02x:%02x:%02x\n",
 		     name,
 		     reg,
 		     buffer[4],
@@ -560,19 +560,19 @@ int rf24_write(struct rf24 *r, const void* buf, uint8_t len )
 
 	rf24_what_happened(r, &tx_ok, &tx_fail, &ack_payload_available);
 
-	dbg("tx_ok: %d tx_fail: %d ack_avail: %d\n",
+	rf24_debug("tx_ok: %d tx_fail: %d ack_avail: %d\n",
 	    tx_ok, tx_fail, ack_payload_available);
 
 	ret = tx_ok;
 
-	dbg("tx result: %s\n", ret ? "OK" : "Fail");
+	rf24_debug("tx result: %s\n", ret ? "OK" : "Fail");
 
 	/* Handle the ack packet */
 	if ( ack_payload_available )
 	{
 		r->ack_payload_length = rf24_get_dynamic_payload_size(r);
 		r->flags |= RF24_ACK_PAYLOAD_AVAIL;
-		dbg("got %d bytes of ack length\n", r->ack_payload_length);
+		rf24_debug("got %d bytes of ack length\n", r->ack_payload_length);
 
 	}
 
@@ -827,7 +827,7 @@ uint8_t rf24_get_dynamic_payload_size(struct rf24 *r)
 	rf24_csn(1);
 	if (result > 32)
 	{
-		dbg("Junk received, dropping\n");
+		rf24_debug("Junk received, dropping\n");
 		rf24_flush_rx(r);
 	}
 	return result;
@@ -846,14 +846,14 @@ static void write_feature(struct rf24 *r, uint8_t v)
 	if ( ! rf24_read_register(r, FEATURE) )
 	{
 		/* So enable them and try again */
-		dbg("Extended features aren't enabled. Enabling...");
+		rf24_debug("Extended features aren't enabled. Enabling...");
 		rf24_toggle_features(r);
 		rf24_write_register(r, FEATURE, v);
 	}
 	if (!rf24_read_register(r, FEATURE))
-		panic("Failed to enable extended features. Are they supported by chip?");
+		rf24_err("Failed to enable extended features. Are they supported by chip?");
 
-	dbg("FEATURE=%i\r\n", rf24_read_register(r, FEATURE));
+	rf24_debug("FEATURE=%i\r\n", rf24_read_register(r, FEATURE));
 
 }
 
@@ -1206,10 +1206,10 @@ void rf24_print_details(struct rf24 *r)
 	rf24_print_byte_register(r, "CONFIG", CONFIG, 1);
 	rf24_print_byte_register(r, "DYNPD/FEATURE", DYNPD, 2);
 
-	printk("Data Rate\t = %d\n",rf24_get_data_rate(r));
-	printk("Model\t\t = %d\n", rf24_is_p_variant(r));
-	printk("CRC Length\t = %d\n", rf24_get_crc_length(r));
-	printk("PA Power\t = %d\n", rf24_get_pa_level(r));
+	rf24_info("Data Rate\t = %d\n",rf24_get_data_rate(r));
+	rf24_info("Model\t\t = %d\n", rf24_is_p_variant(r));
+	rf24_info("CRC Length\t = %d\n", rf24_get_crc_length(r));
+	rf24_info("PA Power\t = %d\n", rf24_get_pa_level(r));
 }
 #else
 void rf24_print_details(struct rf24 *r)

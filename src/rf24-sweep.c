@@ -4,7 +4,7 @@
 
 #include <rf24delay.h>
 #include <rf24misc.h>
-#include <rf24dbg.h>
+#include <rf24log.h>
 
 /**
  * Initialize the sweeper struct with zero values and set up
@@ -65,10 +65,10 @@ void rf24_sweep_dump_results(struct rf24_sweeper *s)
 	int i = 0;
 	while ( i < RF24_NUM_CHANNELS )
 	{
-		printk("%x", min_t(uint8_t, 0xf, s->values[i] & 0xf));
+		rf24_info("%x", min_t(uint8_t, 0xf, s->values[i] & 0xf));
 		++i;
 	}
-	printk("\r");
+	rf24_info("\r");
 }
 
 /**
@@ -78,25 +78,25 @@ void rf24_sweep_dump_results(struct rf24_sweeper *s)
 void rf24_sweep_dump_header()
 {
 	int i = 0;
-	printk("\n\n\n");
+	rf24_info("\n\n\n");
 	while ( i < RF24_NUM_CHANNELS )
 	{
-		printk("%x",i>>4);
+		rf24_info("%x",i>>4);
 		++i;
 	}
-	printk("\n");
+	rf24_info("\n");
 	i = 0;
 	while ( i < RF24_NUM_CHANNELS )
 	{
-		printk("%x",i&0xf);
+		rf24_info("%x",i&0xf);
 		++i;
 	}
 	i=0;
-	printk("\n");
+	rf24_info("\n");
 	while ( i < RF24_NUM_CHANNELS )
 	{
-		printk("-");
+		rf24_info("-");
 		++i;
 	}
-	printk("\n");
+	rf24_info("\n");
 }
