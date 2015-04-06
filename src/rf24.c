@@ -6,6 +6,7 @@
 
 #include <rf24delay.h>
 #include <rf24misc.h>
+#include <rf24err.h>
 #include <rf24log.h>
 
 #define COMPONENT "rf24"
