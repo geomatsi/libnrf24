@@ -45,7 +45,7 @@ OBJS += \
 
 all: $(LIBNAME)_$(TARGET).a
 
-$(LIBNAME)_$(TARGET).a: $(LIBNAME)_$(TARGET).ld $(OBJS)
+$(LIBNAME)_$(TARGET).a: $(OBJS)
 	$(AR) $(ARFLAGS) "$@" $(OBJS)
 
 %.o: %.c
