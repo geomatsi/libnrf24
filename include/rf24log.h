@@ -12,33 +12,33 @@ extern int printf(const char *fmt, ...);
 
 #define RF24TAG	"RF24"
 
-#ifndef LOG_LEVEL
-#define LOG_LEVEL 3
+#ifndef NRF24_LOG_LEVEL
+#define NRF24_LOG_LEVEL 3
 #endif
 
-#if LOG_LEVEL < 1 || LOG_LEVEL > 4
+#if NRF24_LOG_LEVEL < 1 || NRF24_LOG_LEVEL > 4
 #error "Incorrect log level"
 #endif
 
-#if LOG_LEVEL > 0
+#if NRF24_LOG_LEVEL > 0
 #define rf24_err(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_err(...) ;
 #endif
 
-#if LOG_LEVEL > 1
+#if NRF24_LOG_LEVEL > 1
 #define rf24_info(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_info(...) ;
 #endif
 
-#if LOG_LEVEL > 2
+#if NRF24_LOG_LEVEL > 2
 #define rf24_debug(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_debug(...) ;
 #endif
 
-#if LOG_LEVEL > 3
+#if NRF24_LOG_LEVEL > 3
 #define rf24_trace(...)			printf(RF24TAG " : " __VA_ARGS__)
 #else
 #define rf24_trace(...) ;
