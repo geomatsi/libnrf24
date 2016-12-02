@@ -2,8 +2,8 @@ language: c
 
 env:
 	matrix:
-	- CROSS_COMPILE=arm-none-eabi
-	- CROSS_COMPILE=avr
+		- CROSS_COMPILE=arm-none-eabi
+		- CROSS_COMPILE=avr
 
 before_install:
 	- sudo apt-get update -qq
