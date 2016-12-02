@@ -7,11 +7,11 @@ before_install:
 - sudo apt-get install -y gcc-avr binutils-avr avr-libc
 
 script:
-- make CROSS_COMPILE=arm-none-eabi
-- make CROSS_COMPILE=arm-none-eabi clean
-- make CROSS_COMPILE=avr
-- make CROSS_COMPILE=avr clean
-- make CROSS_COMPILE=
-- make CROSS_COMPILE= clean
+- make CROSS_COMPILE=arm-none-eabi TARGET=stm32f4
+- make CROSS_COMPILE=arm-none-eabi TARGET=stm32f4 clean
+- make CROSS_COMPILE=avr TARGET=avr
+- make CROSS_COMPILE=avr TARGET=avr clean
+- make CROSS_COMPILE= TARGET=x86
+- make CROSS_COMPILE= TARGET=x86 clean
 
 install: true
