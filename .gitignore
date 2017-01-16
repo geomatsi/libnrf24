@@ -1,4 +1,7 @@
 
-libnrf24_*.a
 *.o
+tags
+
+run_tests
+libnrf24_*.a
 

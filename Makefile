@@ -15,43 +15,68 @@ TARGET ?= stm32f4
 
 #
 
-CROSS_COMPILE ?= arm-none-linux-gnueabi
+#CROSS_COMPILE ?= arm-none-eabi-
 
-CC = $(CROSS_COMPILE)-gcc
-LD = $(CROSS_COMPILE)-ld
-AR = $(CROSS_COMPILE)-ar
+CC = $(CROSS_COMPILE)gcc
+AR = $(CROSS_COMPILE)ar
+CXX = $(CROSS_COMPILE)g++
+
+#
+
+all: run_tests
 
 #
 
 ARFLAGS	= rcs
 
-CFLAGS = -Wall $(PLT_FLAGS) $(CFG_FLAGS)
-
-#
-
 INC_DIR = include
+
+CPPFLAGS += -I$(INC_DIR)
+CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
+
+# LIBRARY
+
 SRC_DIR = src
 
-CFLAGS += -I$(INC_DIR)
-
-#
-
-OBJS += \
+OBJS = \
 	$(SRC_DIR)/rf24.o \
 	$(SRC_DIR)/rf24-sweep.o
 
-#
-
-all: $(LIBNAME)_$(TARGET).a
+#%.o: %.c
+#	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(LIBNAME)_$(TARGET).a: $(OBJS)
 	$(AR) $(ARFLAGS) "$@" $(OBJS)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+prod: $(LIBNAME)_$(TARGET).a
 
-clean:
-	rm -f $(SRC_DIR)/*.o
+# TESTS
+
+TEST_DIR = tests
+TEST_LIBS = -lCppUTest -lCppUTestExt
+
+TEST_OBJS = \
+	$(TEST_DIR)/main_test.o \
+	$(TEST_DIR)/basic_tests.o \
+	$(TEST_DIR)/stubs.o \
+	$(SRC_DIR)/rf24.o \
+
+build_tests: $(TEST_OBJS)
+	$(CXX) -o run_tests $(TEST_OBJS) $(TEST_LIBS)
+
+run_tests: build_tests
+	./run_tests -c
+
+#
+
+clean: clean_prod clean_test
+
+clean_prod:
 	rm -f $(LIBNAME)_$(TARGET).a
+	rm -f $(SRC_DIR)/*.o
+
+clean_test:
+	rm -f $(TEST_DIR)/*.o
+	rm -f run_tests
 
 .PHONY: clean
