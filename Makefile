@@ -29,9 +29,10 @@ all: run_tests
 
 ARFLAGS	= rcs
 
-INC_DIR = include
+SRC_HDR = include
+TEST_HDR = tests
 
-CPPFLAGS += -I$(INC_DIR)
+CPPFLAGS += -I$(SRC_HDR) -I$(TEST_HDR)
 CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
 
 # LIBRARY
