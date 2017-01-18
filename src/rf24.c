@@ -4,11 +4,25 @@
 #include <RF24.h>
 #include <nRF24L01.h>
 
+#include <rf24_ops.h>
+
 #include <rf24delay.h>
 #include <rf24misc.h>
 #include <rf24err.h>
 #include <rf24log.h>
 
+static struct rf24 *nrf;
+
+void rf24_init(struct rf24 *r)
+{
+	r->payload_size = 32;
+	r->ack_payload_length = 0;
+
+	nrf = r;
+}
+
+
+#if 0
 #define COMPONENT "rf24"
 
 
@@ -1450,3 +1464,4 @@ uint16_t rf24_queue_sync(struct rf24 *r, uint16_t timeout)
 	return timeout;
 }
 
+#endif /* 0 */

@@ -15,11 +15,6 @@ TEST_GROUP(basic)
 	}
 };
 
-TEST(basic, register_ops)
-{
-	FAIL("TODO");
-}
-
 TEST(basic, init)
 {
 	CHECK_EQUAL(0, stub_nrf24.ack_payload_length);
