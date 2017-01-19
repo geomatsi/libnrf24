@@ -1,3 +1,6 @@
+#include <CppUTest/TestHarness.h>
+#include "CppUTestExt/MockSupport.h"
+
 #include <stub_nrf24.h>
 
 void delay_ms(int msec)
@@ -27,7 +30,8 @@ void stub_spi_set_speed(int khz)
 
 uint8_t stub_spi_xfer_sbyte(uint8_t dat)
 {
-	return 0;
+	mock().actualCall("spi_xfer_sbyte").withParameter("dat", dat);
+	return mock().intReturnValue();
 }
 
 int stub_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
