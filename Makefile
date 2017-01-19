@@ -61,7 +61,7 @@ TEST_OBJS = \
 	$(TEST_DIR)/basic_tests.o \
 	$(TEST_DIR)/cmd_tests.o \
 	$(TEST_DIR)/stubs.o \
-	$(SRC_DIR)/rf24_ops.o \
+	$(SRC_DIR)/rf24_cmds.o \
 	$(SRC_DIR)/rf24.o \
 
 build_tests: $(TEST_OBJS)

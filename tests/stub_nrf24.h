@@ -5,7 +5,7 @@ extern "C"
 {
 #include "nRF24L01.h"
 #include "RF24.h"
-#include "rf24_ops.h"
+#include "rf24_cmds.h"
 
 #include "rf24delay.h"
 #include "rf24delay.h"

@@ -4,9 +4,11 @@
 
 TEST_GROUP(basic)
 {
+	struct rf24 *pnrf24 = &stub_nrf24;
+
 	void setup()
 	{
-		rf24_init(&stub_nrf24);
+		rf24_init(pnrf24);
 	}
 
 	void teardown()
