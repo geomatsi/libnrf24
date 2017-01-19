@@ -15,12 +15,12 @@ void delay_us(int usec)
 
 void mock_csn(int level)
 {
-
+	mock().actualCall("csn").withParameter("level", level);
 }
 
 void mock_ce(int level)
 {
-
+	mock().actualCall("ce").withParameter("level", level);
 }
 
 void mock_spi_set_speed(int khz)
