@@ -1,11 +1,11 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
-#include <stub_nrf24.h>
+#include <mock_rf24.h>
 
 TEST_GROUP(rf24_cmds)
 {
-	struct rf24 *pnrf24 = &stub_nrf24;
+	struct rf24 *pnrf24 = &mock_rf24;
 
 	void setup()
 	{

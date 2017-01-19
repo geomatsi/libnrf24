@@ -14,6 +14,6 @@ extern "C"
 #include "rf24log.h"
 }
 
-extern struct rf24 stub_nrf24;
+extern struct rf24 mock_rf24;
 
 #endif /* __STUB_NRF24_H__ */
