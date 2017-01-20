@@ -1,11 +1,11 @@
-#ifndef RF24_LOG_H
-#define RF24_LOG_H
+#ifndef __NRF24_LOG_H__
+#define __NRF24_LOG_H__
 
-extern int printf(const char *fmt, ...);
+int printf(const char *fmt, ...);
 
 /* Defined RF24 log levels:
  *   - ERROR	1
- *   - INFO		2
+ *   - INFO	2
  *   - DEBUG	3
  *   - TRACE	4
  */
@@ -44,4 +44,4 @@ extern int printf(const char *fmt, ...);
 #define rf24_trace(...) ;
 #endif
 
-#endif /* RF24_LOG_H */
+#endif /* __NRF24_LOG_H__ */

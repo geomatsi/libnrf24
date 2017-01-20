@@ -7,8 +7,9 @@
   version 2 as published by the Free Software Foundation.
 */
 
-#ifndef RF24_H
-#define RF24_H
+#ifndef __NRF24_H__
+#define __NRF24_H__
+
 #include <stdint.h>
 
 /**
@@ -146,5 +147,4 @@ void rf24_sweep(struct rf24_sweeper *s, int loops);
 void rf24_sweep_dump_results(struct rf24_sweeper *s);
 void rf24_sweep_dump_header();
 
-
-#endif
+#endif /* __NRF24_H__ */

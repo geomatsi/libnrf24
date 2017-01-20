@@ -1,7 +1,7 @@
-#ifndef RF24_DELAY_H
-#define RF24_DELAY_H
+#ifndef __NRF24_DELAY_H__
+#define __NRF24_DELAY_H__
 
-extern void delay_ms(int);
-extern void delay_us(int);
+void delay_ms(int);
+void delay_us(int);
 
-#endif /* RF24_DELAY_H */
+#endif /* __NRF24_DELAY_H__ */

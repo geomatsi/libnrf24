@@ -1,8 +1,8 @@
-#ifndef RF24_ERR_H
-#define RF24_ERR_H
+#ifndef __NRF24_ERR_H__
+#define __NRF24_ERR_H__
 
 #define EAGAIN	11
 #define ENODEV	19
-#define EIO		5
+#define EIO	5
 
-#endif /* RF24_ERR_H */
+#endif /* __RF24_ERR_H__ */
