@@ -199,6 +199,69 @@ TEST(rf24_cmds, cmd_read_bytes)
 	mock().checkExpectations();
 }
 
+/* tests: rf24_read_register */
+
+TEST(rf24_cmds, cmd_read_register)
+{
+	uint8_t reg = RF_CH;
+	uint8_t ret = 0x14;
+	uint8_t val;
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_REGISTER | (REGISTER_MASK & reg));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xff)
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	val = rf24_read_register(pnrf24, reg);
+	CHECK_EQUAL(ret, val);
+
+	mock().checkExpectations();
+}
+
+/* tests: rf24_read_register */
+
+TEST(rf24_cmds, cmd_write_register)
+{
+	uint8_t reg = RF_CH;
+	uint8_t val = 0x30;
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_REGISTER | (REGISTER_MASK & reg))
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", val);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_register(pnrf24, reg, val);
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}
+
 #if 0
 TEST(rf24_cmds, cmd_read)
 {
