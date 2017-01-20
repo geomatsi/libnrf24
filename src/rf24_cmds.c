@@ -2,7 +2,17 @@
 
 uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
 {
-	return -1;
+	uint8_t status;
+	int i;
+
+	r->csn(0);
+	status = r->spi_xfer(cmd);
+
+	for(i = 0; i < len; i++)
+		r->spi_xfer(buf[i]);
+
+	r->csn(1);
+	return status;
 }
 
 uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
