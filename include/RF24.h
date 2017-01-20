@@ -57,7 +57,6 @@ typedef enum { RF24_CRC_DISABLED = 0, RF24_CRC_8, RF24_CRC_16 } rf24_crclength_e
 struct rf24 {
 	void    (*csn)(int level);
 	void    (*ce)(int level);
-	void    (*spi_set_speed)(int khz);
 	uint8_t (*spi_xfer)(uint8_t dat);
 	/* private data below */
 	uint8_t flags;
