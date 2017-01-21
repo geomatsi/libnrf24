@@ -1,8 +1,6 @@
 #ifndef __NRF24_CMDS_H__
 #define __NRF24_CMDS_H__
 
-#include <stdint.h>
-
 #include "nRF24L01.h"
 #include <RF24.h>
 

@@ -40,8 +40,7 @@ CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
 SRC_DIR = src
 
 OBJS = \
-	$(SRC_DIR)/rf24.o \
-	$(SRC_DIR)/rf24-sweep.o
+	$(SRC_DIR)/rf24.o
 
 #%.o: %.c
 #	$(CC) $(CFLAGS) -o $@ -c $<

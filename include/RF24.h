@@ -10,7 +10,7 @@
 #ifndef __NRF24_H__
 #define __NRF24_H__
 
-#include <stdint.h>
+#include <rf24_std.h>
 
 /**
  * Driver for nRF24L01(+) 2.4GHz Wireless Transceiver

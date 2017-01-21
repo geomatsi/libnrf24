@@ -3,7 +3,7 @@
 #include <RF24.h>
 
 #include <rf24delay.h>
-#include <rf24misc.h>
+#include <rf24_std.h>
 #include <rf24log.h>
 
 /**
