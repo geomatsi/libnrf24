@@ -1,22 +1,39 @@
 /*
-  Copyright (C) 2013 Andrew Andrianov <andrew@ncrmnt.org>
-  Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  version 2 as published by the Free Software Foundation.
-*/
+ * Copyright (C) 2017 Sergey Matyukevich <geomatsi@gmail.com>
+ * Copyright (C) 2013 Andrew Andrianov <andrew@ncrmnt.org>
+ * Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ */
 
 #ifndef __NRF24_H__
 #define __NRF24_H__
 
 #include <rf24_std.h>
 
-/**
- * Driver for nRF24L01(+) 2.4GHz Wireless Transceiver
- */
+#define RF24_MAX_PAYLOAD_SIZE	32
 
+#define RF24_DYNAMIC_PAYLOAD	BIT(3)
 
+struct rf24 {
+	void    (*csn)(int level);
+	void    (*ce)(int level);
+	uint8_t (*spi_xfer)(uint8_t dat);
+
+	uint8_t flags;
+	uint8_t payload_size;
+};
+
+#define rf24_is_dynamic_payload(r)	((r)->flags & RF24_DYNAMIC_PAYLOAD)
+#define rf24_payload_size(r)		((r)->payload_size)
+
+void rf24_init(struct rf24 *r);
+void rf24_enable_dynamic_payload(struct rf24 *r);
+void rf24_set_payload_size(struct rf24 *r, int len);
+
+#if 0
 /**
  * Power Amplifier level.
  *
@@ -39,8 +56,8 @@ typedef enum { RF24_1MBPS = 0, RF24_2MBPS, RF24_250KBPS } rf24_datarate_e;
 typedef enum { RF24_CRC_DISABLED = 0, RF24_CRC_8, RF24_CRC_16 } rf24_crclength_e;
 
 
-#define RF24_NUM_CHANNELS 128 
-#define RF24_MAX_PAYLOAD  32
+#define RF24_NUM_CHANNELS	128
+#define RF24_MAX_PAYLOAD	32
 
 #define RF24_WIDE_BAND           (1<<0)
 #define RF24_P_VARIANT           (1<<1)
@@ -48,23 +65,22 @@ typedef enum { RF24_CRC_DISABLED = 0, RF24_CRC_8, RF24_CRC_16 } rf24_crclength_e
 #define RF24_DYNAMIC_PAYLOAD     (1<<3)
 #define RF24_HAVE_ACK_PAYLOADS   (1<<4)
 
-
-
 #define rf24_is_wideband(rf24)         ((rf24)->flags & RF24_WIDE_BAND)
 #define rf24_is_p_variant(rf24)        ((rf24)->flags & RF24_P_VARIANT)
-
 #define rf24_has_dynamic_payload(rf24) ((rf24)->flags & RF24_DYNAMIC_PAYLOAD)
+
 struct rf24 {
 	void    (*csn)(int level);
 	void    (*ce)(int level);
 	uint8_t (*spi_xfer)(uint8_t dat);
+
 	/* private data below */
 	uint8_t flags;
 	uint8_t payload_size;
 	uint8_t ack_payload_length;
 	uint8_t pipe0_reading_address[5];
 	uint8_t pipe0_writing_address[5];
-	uint8_t nretr; 
+	uint8_t nretr;
 	uint8_t rtimeout;
 };
 
@@ -145,5 +161,6 @@ void rf24_sweeper_init(struct rf24_sweeper *s, struct rf24 *r);
 void rf24_sweep(struct rf24_sweeper *s, int loops);
 void rf24_sweep_dump_results(struct rf24_sweeper *s);
 void rf24_sweep_dump_header();
+#endif
 
 #endif /* __NRF24_H__ */

@@ -47,3 +47,33 @@ uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t val)
 
 	return status;
 }
+
+uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
+{
+	const uint8_t* curr = (uint8_t *)buf;
+	uint8_t dat_len;
+	uint8_t pad_len;
+	uint8_t status;
+
+	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
+	pad_len = rf24_is_dynamic_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
+
+	r->csn(0);
+
+	status = r->spi_xfer(W_TX_PAYLOAD);
+
+	while ( dat_len-- )
+		r->spi_xfer(*curr++);
+
+	while ( pad_len-- )
+		r->spi_xfer(0x0);
+
+	r->csn(1);
+
+	return status;
+}
+
+uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
+{
+	return 0;
+}

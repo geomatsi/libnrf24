@@ -230,7 +230,7 @@ TEST(rf24_cmds, cmd_read_register)
 	mock().checkExpectations();
 }
 
-/* tests: rf24_read_register */
+/* tests: rf24_write_register */
 
 TEST(rf24_cmds, cmd_write_register)
 {
@@ -262,20 +262,171 @@ TEST(rf24_cmds, cmd_write_register)
 	mock().checkExpectations();
 }
 
-#if 0
-TEST(rf24_cmds, cmd_read)
+/* fixed payload tests: rf24_write_payload */
+
+TEST(rf24_cmds, write_payload_fixed_1)
 {
+	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t ret = 0xe;
 	uint8_t status;
 
-	status = rf24_read_cmd(pnrf24, NOP, NULL, 0);
-	CHECK_EQUAL(0xe, status);
+	/* usecase I: buffer length == configured payload length */
+
+	rf24_set_payload_size(pnrf24, sizeof(buf));
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD)
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[0]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[1]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[2]);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
 }
 
-TEST(rf24_cmds, cmd_write)
+TEST(rf24_cmds, write_payload_fixed_2)
 {
+	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t ret = 0xe;
 	uint8_t status;
 
-	status = rf24_write_cmd(pnrf24, NOP, NULL, 0);
-	CHECK_EQUAL(0xe, status);
+	/* usecase II: buffer length > configured payload length */
+	rf24_set_payload_size(pnrf24, sizeof(buf) - 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD)
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[0]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[1]);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
 }
-#endif
+
+TEST(rf24_cmds, write_payload_fixed_3)
+{
+	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+	/* usecase III: buffer length < configured payload length */
+	rf24_set_payload_size(pnrf24, sizeof(buf) + 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD)
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[0]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[1]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[2]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0x0);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}
+
+/* dynamic payload tests: rf24_write_payload */
+
+TEST(rf24_cmds, write_payload_dynamic)
+{
+	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+	/* don't verify dynamic payload setup, there are separate tests for it;
+	 * this test is focused on checking dynamic payload transfer
+	 */
+	mock().disable();
+	rf24_enable_dynamic_payload(pnrf24);
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD)
+		.andReturnValue(ret);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[0]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[1]);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", buf[2]);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}

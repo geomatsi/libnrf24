@@ -11,12 +11,41 @@ static struct rf24 *nrf;
 
 void rf24_init(struct rf24 *r)
 {
-	r->payload_size = 32;
-	r->ack_payload_length = 0;
+	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
+	r->flags = 0;
 
 	nrf = r;
 }
 
+void rf24_set_payload_size(struct rf24 *r, int len)
+{
+	/* invalid input: keep former value */
+	if (len < 0)
+		return;
+
+	r->payload_size = min_t(uint8_t, len, RF24_MAX_PAYLOAD_SIZE);
+}
+
+void rf24_enable_dynamic_payload(struct rf24 *r)
+{
+	uint8_t val;
+
+	/* FIXME: check ACTIVATE command in legacy write_feature */
+
+	val = rf24_read_register(r, FEATURE);
+	rf24_write_register(r, FEATURE, val | BIT(EN_DPL));
+
+	/* enable dynamic payload on all pipes at once */
+	/* FIXME: do we need mixed pipe configuration ? */
+
+	val = rf24_read_register(r, DYNPD);
+	rf24_write_register(r, DYNPD, val | BIN(111111));
+
+	r->flags |= RF24_DYNAMIC_PAYLOAD;
+
+	/* set payload size to max for boundary checks */
+	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
+}
 
 #if 0
 #define COMPONENT "rf24"
