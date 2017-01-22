@@ -43,8 +43,24 @@ void rf24_enable_dynamic_payload(struct rf24 *r)
 
 	r->flags |= RF24_DYNAMIC_PAYLOAD;
 
-	/* set payload size to max for boundary checks */
+	/* set max payload size for boundary checks */
 	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
+}
+
+int rf24_get_dynamic_payload_size(struct rf24 *r)
+{
+	int len;
+
+	r->csn(0);
+	r->spi_xfer(R_RX_PL_WID);
+	len = r->spi_xfer(0xff);
+	r->csn(1);
+
+	/* sanity check */
+	if ((len < 0) || (len > 32))
+		len = -1;
+
+	return len;
 }
 
 #if 0

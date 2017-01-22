@@ -32,6 +32,7 @@ struct rf24 {
 void rf24_init(struct rf24 *r);
 void rf24_enable_dynamic_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
+int rf24_get_dynamic_payload_size(struct rf24 *r);
 
 #if 0
 /**

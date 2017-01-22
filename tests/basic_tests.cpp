@@ -51,10 +51,78 @@ TEST(basic, fixed_payload)
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
 }
 
-TEST(basic, dynamic_payload)
+TEST(basic, enable_dynamic_payload)
 {
 	CHECK_FALSE(rf24_is_dynamic_payload(pnrf24));
 	rf24_enable_dynamic_payload(pnrf24);
 	CHECK_TRUE(rf24_is_dynamic_payload(pnrf24));
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
+}
+
+TEST(basic, get_dynamic_payload_sunny)
+{
+	int expected_len;
+	int actual_len;
+
+	mock().enable();
+
+	/* sunny case: read valid length from nRF24 chip */
+
+	expected_len = 10;
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_RX_PL_WID);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xff)
+		.andReturnValue(expected_len);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	actual_len = rf24_get_dynamic_payload_size(pnrf24);
+	CHECK_EQUAL(expected_len, actual_len);
+
+	mock().checkExpectations();
+}
+
+TEST(basic, get_dynamic_payload_error)
+{
+	int expected_len;
+	int actual_len;
+
+	mock().enable();
+
+	/* error case: read invalid length from nRF24 chip */
+
+	expected_len = RF24_MAX_PAYLOAD_SIZE * 2;
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_RX_PL_WID);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xff)
+		.andReturnValue(expected_len);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	actual_len = rf24_get_dynamic_payload_size(pnrf24);
+	CHECK_EQUAL(-1, actual_len);
+
+	mock().checkExpectations();
 }
