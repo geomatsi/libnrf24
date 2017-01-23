@@ -5,13 +5,13 @@
 #   - CROSS_COMPILE: path/prefix of cross-toolchain
 #   - TARGET: target platform identifier to add to library name
 #   - PLT_FLAGS: platform-specific compile flags, e.g. -mcpu=...
-#   - CFG_FLAGS: libstlinky configuration switches
+#   - CFG_FLAGS: linbrf24 configuration switches
 #     -- LIB_RF24_SIZEOPT
 #     -- LIB_RF24_SWEEP_RPD
 #
 
 LIBNAME = libnrf24
-TARGET ?= stm32f4
+TARGET ?= x86
 
 #
 
@@ -27,12 +27,10 @@ all: run_tests
 
 #
 
-ARFLAGS	= rcs
+PROD_HDR = include
+TEST_HDR = tests/include
 
-SRC_HDR = include
-TEST_HDR = tests
-
-CPPFLAGS += -I$(SRC_HDR) -I$(TEST_HDR)
+CPPFLAGS += -I$(PROD_HDR) -I$(TEST_HDR)
 CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
 
 # LIBRARY
@@ -40,31 +38,30 @@ CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
 SRC_DIR = src
 
 OBJS = \
-	$(SRC_DIR)/rf24.o
+	$(SRC_DIR)/rf24.o \
+	$(SRC_DIR)/rf24_cmds.o \
 
-#%.o: %.c
-#	$(CC) $(CFLAGS) -o $@ -c $<
+ARFLAGS	= rcs
 
 $(LIBNAME)_$(TARGET).a: $(OBJS)
 	$(AR) $(ARFLAGS) "$@" $(OBJS)
 
-prod: $(LIBNAME)_$(TARGET).a
+build_prod: $(LIBNAME)_$(TARGET).a
 
 # TESTS
 
 TEST_DIR = tests
-TEST_LIBS = -lCppUTest -lCppUTestExt
 
 TEST_OBJS = \
 	$(TEST_DIR)/main_test.o \
 	$(TEST_DIR)/basic_tests.o \
 	$(TEST_DIR)/cmd_tests.o \
-	$(TEST_DIR)/mock.o \
-	$(SRC_DIR)/rf24_cmds.o \
-	$(SRC_DIR)/rf24.o \
+	$(TEST_DIR)/mock.o
 
-build_tests: $(TEST_OBJS)
-	$(CXX) -o run_tests $(TEST_OBJS) $(TEST_LIBS)
+TEST_LIBS = -lCppUTest -lCppUTestExt
+
+build_tests: build_prod $(TEST_OBJS)
+	$(CXX) -o run_tests $(TEST_OBJS) $(TEST_LIBS) $(LIBNAME)_$(TARGET).a
 
 run_tests: build_tests
 	./run_tests -c
@@ -74,8 +71,8 @@ run_tests: build_tests
 clean: clean_prod clean_test
 
 clean_prod:
-	rm -f $(LIBNAME)_$(TARGET).a
 	rm -f $(SRC_DIR)/*.o
+	rm -f $(LIBNAME)_$(TARGET).a
 
 clean_test:
 	rm -f $(TEST_DIR)/*.o
