@@ -88,7 +88,7 @@ TEST(rf24_cmds, cmd_write_bytes)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(0xe);
 
-	for (uint8_t i = 0; i < sizeof(tx); i++) {
+	for (unsigned int i = 0; i < sizeof(tx); i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", tx[i]);
@@ -175,7 +175,7 @@ TEST(rf24_cmds, cmd_read_bytes)
 		.withParameter("dat", NOP)
 		.andReturnValue(0xe);
 
-	for (uint8_t i = 0; i < sizeof(rx) - 1; i++) {
+	for (unsigned int i = 0; i < sizeof(rx) - 1; i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", 0xff)
@@ -278,7 +278,7 @@ TEST(rf24_cmds, write_payload_fixed_1)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	for (uint8_t i = 0; i < sizeof(buf); i++) {
+	for (unsigned int i = 0; i < sizeof(buf); i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", buf[i]);
@@ -313,7 +313,7 @@ TEST(rf24_cmds, write_payload_fixed_2)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	for (uint8_t i = 0; i < sizeof(buf) - 1; i++) {
+	for (unsigned int i = 0; i < sizeof(buf) - 1; i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", buf[i]);
@@ -347,7 +347,7 @@ TEST(rf24_cmds, write_payload_fixed_3)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	for (uint8_t i = 0; i < sizeof(buf); i++) {
+	for (unsigned int i = 0; i < sizeof(buf); i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", buf[i]);
@@ -391,7 +391,7 @@ TEST(rf24_cmds, write_payload_dynamic)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	for (uint8_t i = 0; i < sizeof(buf); i++) {
+	for (unsigned int i = 0; i < sizeof(buf); i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", buf[i]);
@@ -563,7 +563,7 @@ TEST(rf24_cmds, read_payload_dynamic)
 		.withParameter("dat", R_RX_PAYLOAD)
 		.andReturnValue(ret);
 
-	for (uint8_t i = 0; i < sizeof(rx); i++) {
+	for (unsigned int i = 0; i < sizeof(rx); i++) {
 		mock()
 			.expectOneCall("spi_xfer_sbyte")
 			.withParameter("dat", 0xff)
