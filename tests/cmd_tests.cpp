@@ -259,7 +259,7 @@ TEST(rf24_cmds, cmd_write_register)
 
 TEST(rf24_cmds, write_payload_fixed_1)
 {
-	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd, 0xe};
 	uint8_t ret = 0xe;
 	uint8_t status;
 
@@ -276,17 +276,11 @@ TEST(rf24_cmds, write_payload_fixed_1)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[0]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[1]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[2]);
+	for (uint8_t i = 0; i < sizeof(buf); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
@@ -300,11 +294,12 @@ TEST(rf24_cmds, write_payload_fixed_1)
 
 TEST(rf24_cmds, write_payload_fixed_2)
 {
-	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};
 	uint8_t ret = 0xe;
 	uint8_t status;
 
 	/* usecase II: buffer length > configured payload length */
+
 	rf24_set_payload_size(pnrf24, sizeof(buf) - 1);
 
 	mock()
@@ -316,13 +311,11 @@ TEST(rf24_cmds, write_payload_fixed_2)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[0]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[1]);
+	for (uint8_t i = 0; i < sizeof(buf) - 1; i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
@@ -336,7 +329,7 @@ TEST(rf24_cmds, write_payload_fixed_2)
 
 TEST(rf24_cmds, write_payload_fixed_3)
 {
-	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};
 	uint8_t ret = 0xe;
 	uint8_t status;
 
@@ -352,17 +345,11 @@ TEST(rf24_cmds, write_payload_fixed_3)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[0]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[1]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[2]);
+	for (uint8_t i = 0; i < sizeof(buf); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
 
 	mock()
 		.expectOneCall("spi_xfer_sbyte")
@@ -382,7 +369,7 @@ TEST(rf24_cmds, write_payload_fixed_3)
 
 TEST(rf24_cmds, write_payload_dynamic)
 {
-	uint8_t buf[] = {0xa, 0xb, 0xc};
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};
 	uint8_t ret = 0xe;
 	uint8_t status;
 
@@ -402,17 +389,11 @@ TEST(rf24_cmds, write_payload_dynamic)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(ret);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[0]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[1]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", buf[2]);
+	for (uint8_t i = 0; i < sizeof(buf); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
