@@ -100,3 +100,20 @@ uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 
 	return status;
 }
+
+uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len)
+{
+	const uint8_t *addr = &buf[len];
+	uint8_t status;
+
+	r->csn(0);
+
+	status = r->spi_xfer(W_REGISTER | (REGISTER_MASK & reg));
+
+	while (len--)
+		r->spi_xfer(*(--addr));
+
+	r->csn(1);
+
+	return status;
+}

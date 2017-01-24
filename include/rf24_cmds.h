@@ -13,4 +13,6 @@ uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t val);
 uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len);
 uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len);
 
+uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len);
+
 #endif /* __NRF24_CMDS_H__ */
