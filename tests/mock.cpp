@@ -35,7 +35,9 @@ int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
 }
 
 struct rf24 mock_rf24 = {
-	.csn		= mock_csn,
-	.ce		= mock_ce,
-	.spi_xfer	= mock_spi_xfer_sbyte,
+	mock_csn,
+	mock_ce,
+	mock_spi_xfer_sbyte,
+	0,
+	0
 };

@@ -5,10 +5,11 @@
 
 TEST_GROUP(rf24_cmds)
 {
-	struct rf24 *pnrf24 = &mock_rf24;
+	struct rf24 *pnrf24;
 
 	void setup()
 	{
+		pnrf24 = &mock_rf24;
 		rf24_init(pnrf24);
 	}
 
