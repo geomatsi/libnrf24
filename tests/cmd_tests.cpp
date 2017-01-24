@@ -1,6 +1,8 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
+#include <cstring>
+
 #include <mock_rf24.h>
 
 TEST_GROUP(rf24_cmds)
@@ -596,31 +598,17 @@ TEST(rf24_cmds, rf24_write_address_long)
 		.withParameter("dat", W_REGISTER | (REGISTER_MASK & RX_ADDR_P0))
 		.andReturnValue(ret);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", addr[4]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", addr[3]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", addr[2]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", addr[1]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", addr[0]);
+	for (int i = strlen(addr) - 1; i > -1; i--) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", addr[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
 		.withParameter("level", 1);
 
-	status = rf24_write_address(pnrf24, RX_ADDR_P0, (uint8_t *)addr, 5);
+	status = rf24_write_address(pnrf24, RX_ADDR_P0, (uint8_t *)addr, strlen(addr));
 	CHECK_EQUAL(ret, status);
 
 	mock().checkExpectations();
