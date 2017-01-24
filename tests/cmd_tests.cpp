@@ -129,8 +129,9 @@ TEST(rf24_cmds, cmd_read_nop)
 
 TEST(rf24_cmds, cmd_read_byte)
 {
+	uint8_t hw_byte = 0xa;
 	uint8_t status;
-	uint8_t rx[1] = {0};
+	uint8_t byte;
 
 	mock()
 		.expectOneCall("csn")
@@ -144,23 +145,24 @@ TEST(rf24_cmds, cmd_read_byte)
 	mock()
 		.expectOneCall("spi_xfer_sbyte")
 		.withParameter("dat", 0xff)
-		.andReturnValue(0xa);
+		.andReturnValue(hw_byte);
 
 	mock()
 		.expectOneCall("csn")
 		.withParameter("level", 1);
 
-	status = rf24_read_cmd(pnrf24, NOP, rx, 1);
+	status = rf24_read_cmd(pnrf24, NOP, &byte, 1);
 	CHECK_EQUAL(0xe, status);
-	CHECK_EQUAL(0xa, rx[0]);
+	CHECK_EQUAL(hw_byte, byte);
 
 	mock().checkExpectations();
 }
 
 TEST(rf24_cmds, cmd_read_bytes)
 {
+	uint8_t hw[] = {0x1, 0x2, 0x3, 0x4, 0x5};
+	uint8_t rx[] = {0x0, 0x0, 0x0, 0x0};
 	uint8_t status;
-	uint8_t rx[3] = {0x1, 0x2, 0x3};
 
 	mock()
 		.expectOneCall("csn")
@@ -171,25 +173,21 @@ TEST(rf24_cmds, cmd_read_bytes)
 		.withParameter("dat", NOP)
 		.andReturnValue(0xe);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xff)
-		.andReturnValue(0xa);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xff)
-		.andReturnValue(0xb);
+	for (uint8_t i = 0; i < sizeof(rx) - 1; i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", 0xff)
+			.andReturnValue(hw[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
 		.withParameter("level", 1);
 
-	status = rf24_read_cmd(pnrf24, NOP, rx, 2);
+	status = rf24_read_cmd(pnrf24, NOP, rx, sizeof(rx) - 1);
 	CHECK_EQUAL(0xe, status);
-	CHECK_EQUAL(0xa, rx[0]);
-	CHECK_EQUAL(0xb, rx[1]);
-	CHECK_EQUAL(0x3, rx[2]);
+	CHECK_EQUAL(0x0, rx[sizeof(rx) - 1]);
+	MEMCMP_EQUAL(hw, rx, sizeof(rx) - 1);
 
 	mock().checkExpectations();
 }
