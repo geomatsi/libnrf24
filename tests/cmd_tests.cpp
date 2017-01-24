@@ -407,6 +407,47 @@ TEST(rf24_cmds, write_payload_dynamic)
 	mock().checkExpectations();
 }
 
+TEST(rf24_cmds, write_payload_dynamic_boundary)
+{
+	uint8_t buf[RF24_MAX_PAYLOAD_SIZE * 2] = {0};
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+	for (unsigned int i = 0; i < sizeof(buf); i++)
+		buf[i] = (i + 1);
+
+	/* don't verify dynamic payload setup, there are separate tests for it;
+	 * this test is focused on checking dynamic payload transfer
+	 */
+	mock().disable();
+	rf24_enable_dynamic_payload(pnrf24);
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD)
+		.andReturnValue(ret);
+
+	for (unsigned int i = 0; i < RF24_MAX_PAYLOAD_SIZE; i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}
+
 /* fixed payload tests: rf24_read_payload */
 
 TEST(rf24_cmds, read_payload_fixed_1)
@@ -576,6 +617,51 @@ TEST(rf24_cmds, read_payload_dynamic)
 
 	status = rf24_read_payload(pnrf24, rx, sizeof(rx));
 	MEMCMP_EQUAL(tx, rx, sizeof(rx));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}
+
+TEST(rf24_cmds, read_payload_dynamic_boundary)
+{
+	uint8_t rx[RF24_MAX_PAYLOAD_SIZE + 1] = {0};
+	uint8_t tx[RF24_MAX_PAYLOAD_SIZE];
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+	for (unsigned int i = 0; i < sizeof(tx); i++)
+		tx[i] = (i + 1);
+
+	/* don't verify dynamic payload setup, there are separate tests for it;
+	 * this test is focused on checking dynamic payload transfer
+	 */
+	mock().disable();
+	rf24_enable_dynamic_payload(pnrf24);
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_RX_PAYLOAD)
+		.andReturnValue(ret);
+
+	for (unsigned int i = 0; i < sizeof(tx); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", 0xff)
+			.andReturnValue(tx[i]);
+	}
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_read_payload(pnrf24, rx, sizeof(rx));
+	CHECK_EQUAL(0x0, rx[RF24_MAX_PAYLOAD_SIZE]);
+	MEMCMP_EQUAL(tx, rx, sizeof(tx));
 	CHECK_EQUAL(ret, status);
 
 	mock().checkExpectations();
