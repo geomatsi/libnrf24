@@ -46,8 +46,8 @@ TEST(rf24_cmds, cmd_write_nop)
 
 TEST(rf24_cmds, cmd_write_byte)
 {
+	uint8_t byte = 0xa;
 	uint8_t status;
-	uint8_t tx[1] = {0xa};
 
 	mock()
 		.expectOneCall("csn")
@@ -60,13 +60,13 @@ TEST(rf24_cmds, cmd_write_byte)
 
 	mock()
 		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", tx[0]);
+		.withParameter("dat", byte);
 
 	mock()
 		.expectOneCall("csn")
 		.withParameter("level", 1);
 
-	status = rf24_write_cmd(pnrf24, W_TX_PAYLOAD, tx, 1);
+	status = rf24_write_cmd(pnrf24, W_TX_PAYLOAD, &byte, 1);
 	CHECK_EQUAL(0xe, status);
 
 	mock().checkExpectations();
@@ -74,8 +74,8 @@ TEST(rf24_cmds, cmd_write_byte)
 
 TEST(rf24_cmds, cmd_write_bytes)
 {
+	uint8_t tx[] = {0x1, 0x2, 0x3, 0x4, 0x5};
 	uint8_t status;
-	uint8_t tx[3] = {0x1, 0x2, 0x3};
 
 	mock()
 		.expectOneCall("csn")
@@ -86,23 +86,17 @@ TEST(rf24_cmds, cmd_write_bytes)
 		.withParameter("dat", W_TX_PAYLOAD)
 		.andReturnValue(0xe);
 
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", tx[0]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", tx[1]);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", tx[2]);
+	for (uint8_t i = 0; i < sizeof(tx); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", tx[i]);
+	}
 
 	mock()
 		.expectOneCall("csn")
 		.withParameter("level", 1);
 
-	status = rf24_write_cmd(pnrf24, W_TX_PAYLOAD, tx, 3);
+	status = rf24_write_cmd(pnrf24, W_TX_PAYLOAD, tx, sizeof(tx));
 	CHECK_EQUAL(0xe, status);
 
 	mock().checkExpectations();
