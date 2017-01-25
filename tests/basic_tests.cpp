@@ -179,3 +179,29 @@ TEST(basic, rf24_fluxh_tx)
 
 	mock().checkExpectations();
 }
+
+TEST(basic, rf24_get_status)
+{
+	int expected_status = 0xe;
+	int actual_status;
+
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", NOP)
+		.andReturnValue(expected_status);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	actual_status = rf24_get_status(pnrf24);
+	CHECK_EQUAL(expected_status, actual_status);
+
+	mock().checkExpectations();
+}

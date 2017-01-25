@@ -63,6 +63,11 @@ int rf24_get_dynamic_payload_size(struct rf24 *r)
 	return len;
 }
 
+uint8_t rf24_get_status(struct rf24 *r)
+{
+	return rf24_write_cmd(r, NOP, 0, 0);
+}
+
 uint8_t rf24_flush_rx(struct rf24 *r)
 {
 	return rf24_write_cmd(r, FLUSH_RX, 0, 0);
