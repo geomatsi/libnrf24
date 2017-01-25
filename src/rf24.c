@@ -78,6 +78,15 @@ uint8_t rf24_flush_tx(struct rf24 *r)
 	return rf24_write_cmd(r, FLUSH_TX, 0, 0);
 }
 
+void rf24_set_channel(struct rf24 *r, uint8_t channel)
+{
+	/* invalid input: keep former value */
+	if (channel > RF24_MAX_CHANNEL)
+		return;
+
+	rf24_write_register(r, RF_CH, channel);
+}
+
 #if 0
 #define COMPONENT "rf24"
 

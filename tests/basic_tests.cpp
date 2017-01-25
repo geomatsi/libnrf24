@@ -205,3 +205,43 @@ TEST(basic, rf24_get_status)
 
 	mock().checkExpectations();
 }
+
+TEST(basic, rf24_set_channel_valid)
+{
+	int channel = 0x10;
+
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_REGISTER | (REGISTER_MASK & RF_CH));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", channel);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	rf24_set_channel(pnrf24, channel);
+
+	mock().checkExpectations();
+}
+
+TEST(basic, rf24_set_channel_invalid)
+{
+	int channel = RF24_MAX_CHANNEL + 1;
+
+	mock().enable();
+	mock().expectNoCall("csn");
+	mock().expectNoCall("spi_xfer_sbyte");
+
+	rf24_set_channel(pnrf24, channel);
+
+	mock().checkExpectations();
+}

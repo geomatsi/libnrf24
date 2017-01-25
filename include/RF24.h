@@ -14,6 +14,7 @@
 #include <rf24_std.h>
 
 #define RF24_MAX_PAYLOAD_SIZE	32
+#define RF24_MAX_CHANNEL	127
 
 #define RF24_DYNAMIC_PAYLOAD	BIT(3)
 
@@ -38,6 +39,8 @@ uint8_t rf24_get_status(struct rf24 *r);
 
 uint8_t rf24_flush_rx(struct rf24 *r);
 uint8_t rf24_flush_tx(struct rf24 *r);
+
+void rf24_set_channel(struct rf24 *r, uint8_t channel);
 
 #if 0
 /**
