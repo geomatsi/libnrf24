@@ -27,106 +27,156 @@
 
 /* SPI commands */
 
-#define R_REGISTER	0x00
-#define W_REGISTER	0x20
-#define REGISTER_MASK	0x1F
-#define ACTIVATE	0x50
-#define R_RX_PL_WID	0x60
-#define R_RX_PAYLOAD	0x61
-#define W_TX_PAYLOAD	0xA0
-#define W_ACK_PAYLOAD	0xA8
-#define FLUSH_TX	0xE1
-#define FLUSH_RX	0xE2
-#define REUSE_TX_PL	0xE3
-#define NOP		0xFF
+#define R_REGISTER		0x00
+#define W_REGISTER		0x20
+#define REGISTER_MASK		0x1F
+#define ACTIVATE		0x50
+#define R_RX_PL_WID		0x60
+#define R_RX_PAYLOAD		0x61
+#define W_TX_PAYLOAD		0xA0
+#define W_ACK_PAYLOAD		0xA8
+#define FLUSH_TX		0xE1
+#define FLUSH_RX		0xE2
+#define REUSE_TX_PL		0xE3
+#define NOP			0xFF
 
 /* Register map table */
 
-#define CONFIG		0x00
-#define EN_AA		0x01
-#define EN_RXADDR	0x02
-#define SETUP_AW	0x03
-#define SETUP_RETR	0x04
-#define RF_CH		0x05
-#define RF_SETUP	0x06
-#define STATUS		0x07
-#define OBSERVE_TX	0x08
+#define CONFIG			0x00
+#define EN_AA			0x01
+#define EN_RXADDR		0x02
+#define SETUP_AW		0x03
+#define SETUP_RETR		0x04
+#define RF_CH			0x05
+#define RF_SETUP		0x06
+#define STATUS			0x07
+#define OBSERVE_TX		0x08
 
 /* From nRF24L01+ datasheet:
  * The register is called CD in the nRF24L01. The name is different in nRF24L01+
  * due to the different input power level threshold for this bit.
  */
-#define RPD		0x09
-#define CD		0x09
+#define RPD			0x09
+#define CD			0x09
 
-#define RX_ADDR_P0	0x0A
-#define RX_ADDR_P1	0x0B
-#define RX_ADDR_P2	0x0C
-#define RX_ADDR_P3	0x0D
-#define RX_ADDR_P4	0x0E
-#define RX_ADDR_P5	0x0F
-#define TX_ADDR		0x10
-#define RX_PW_P0	0x11
-#define RX_PW_P1	0x12
-#define RX_PW_P2	0x13
-#define RX_PW_P3	0x14
-#define RX_PW_P4	0x15
-#define RX_PW_P5	0x16
-#define FIFO_STATUS	0x17
-#define DYNPD		0x1C
-#define FEATURE		0x1D
+#define RX_ADDR_P0		0x0A
+#define RX_ADDR_P1		0x0B
+#define RX_ADDR_P2		0x0C
+#define RX_ADDR_P3		0x0D
+#define RX_ADDR_P4		0x0E
+#define RX_ADDR_P5		0x0F
+
+#define RX_ADDR_BASE		0x0A
+#define RX_ADDR_P(n)		(RX_ADDR_BASE + (n))
+
+#define TX_ADDR			0x10
+
+#define RX_PW_P0		0x11
+#define RX_PW_P1		0x12
+#define RX_PW_P2		0x13
+#define RX_PW_P3		0x14
+#define RX_PW_P4		0x15
+#define RX_PW_P5		0x16
+
+#define RX_PW_BASE		0x11
+#define RX_PW_P(n)		(RX_PW_BASE + (n))
+
+#define FIFO_STATUS		0x17
+#define DYNPD			0x1C
+#define FEATURE			0x1D
 
 /* Register bits */
-#define MASK_RX_DR	6
-#define MASK_TX_DS	5
-#define MASK_MAX_RT	4
-#define EN_CRC		3
-#define CRCO		2
-#define PWR_UP		1
-#define PRIM_RX		0
-#define ENAA_P5		5
-#define ENAA_P4		4
-#define ENAA_P3		3
-#define ENAA_P2		2
-#define ENAA_P1		1
-#define ENAA_P0		0
-#define ERX_P5		5
-#define ERX_P4		4
-#define ERX_P3		3
-#define ERX_P2		2
-#define ERX_P1		1
-#define ERX_P0		0
-#define AW		0
-#define ARD		4
-#define ARC		0
-#define PLL_LOCK	4
-#define RF_DR		3
-#define RF_PWR		6
-#define RX_DR		6
-#define TX_DS		5
-#define MAX_RT		4
-#define RX_P_NO		1
-#define TX_FULL		0
-#define PLOS_CNT	4
-#define ARC_CNT		0
-#define TX_REUSE	6
-#define FIFO_FULL	5
-#define TX_EMPTY	4
-#define RX_FULL		1
-#define RX_EMPTY	0
-#define DPL_P5		5
-#define DPL_P4		4
-#define DPL_P3		3
-#define DPL_P2		2
-#define DPL_P1		1
-#define DPL_P0		0
-#define EN_DPL		2
-#define EN_ACK_PAY	1
-#define EN_DYN_ACK	0
 
-#define RF_DR_LOW	5
-#define RF_DR_HIGH	3
-#define RF_PWR_LOW	1
-#define RF_PWR_HIGH	2
+#define CONFIG_MASK_RX_DR	(1 << 6)
+#define CONFIG_MASK_TX_DS	(1 << 5)
+#define CONFIG_MASK_MAX_RT	(1 << 4)
+#define CONFIG_EN_CRC		(1 << 3)
+#define CONFIG_CRCO		(1 << 2)
+#define CONFIG_PWR_UP		(1 << 1)
+#define CONFIG_PRIM_RX		(1 << 0)
+
+#define EN_AA_ENAA_P5		(1 << 5)
+#define EN_AA_ENAA_P4		(1 << 4)
+#define EN_AA_ENAA_P3		(1 << 3)
+#define EN_AA_ENAA_P2		(1 << 2)
+#define EN_AA_ENAA_P1		(1 << 1)
+#define EN_AA_ENAA_P0		(1 << 0)
+
+#define EN_AA_ENAA_P(n)		(1 << (n))
+
+#define EN_RXADDR_ERX_P5	(1 << 5)
+#define EN_RXADDR_ERX_P4	(1 << 4)
+#define EN_RXADDR_ERX_P3	(1 << 3)
+#define EN_RXADDR_ERX_P2	(1 << 2)
+#define EN_RXADDR_ERX_P1	(1 << 1)
+#define EN_RXADDR_ERX_P0	(1 << 0)
+
+#define EN_RXADDR_ERX_P(n)	(1 << (n))
+
+#define SETUP_AW_MASK		0x3
+#define SETUP_AW_SHIFT		0
+#define SETUP_AW_3_BYTES	(0x1 << SETUP_AW_SHIFT)
+#define SETUP_AW_4_BYTES	(0x2 << SETUP_AW_SHIFT)
+#define SETUP_AW_5_BYTES	(0x3 << SETUP_AW_SHIFT)
+
+#define SETUP_RETR_ARD_SHIFT	4
+#define SETUP_RETR_ARD_MASK	0xf
+#define SETUP_RETR_ARD_VAL(X)	((x) << SETUP_RETR_ARD_SHIFT)
+
+#define SETUP_RETR_ARC_SHIFT	0
+#define SETUP_RETR_ARC_MASK	0xf
+#define SETUP_RETR_ARC_VAL(x)	((x) << SETUP_RETR_ARC_SHIFT)
+
+#define RF_CH_SHIFT		0
+#define RF_CH_MASK		0x7F
+
+#define RF_SETUP_CONT_WAVE	(1 << 7)
+#define RF_SETUP_RF_DR_LOW	(1 << 5)
+#define RF_SETUP_PLL_LOCK	(1 << 4)
+#define RF_SETUP_RF_DR_HIGH	(1 << 3)
+
+#define RF_SETUP_RF_PWR_SHIFT	1
+#define RF_SETUP_RF_PWR_MASK	0x3
+#define RF_SETUP_RF_PWR_VAL(x)	((x) << RF_SETUP_RF_PWR_SHIFT)
+
+#define STATUS_RX_DR		(1 << 6)
+#define STATUS_TX_DS		(1 << 5)
+#define STATUS_MAX_RT		(1 << 4)
+#define STATUS_TX_FULL		(1 << 0)
+
+#define STATUS_RX_P_NO_SHIFT	1
+#define STATUS_RX_P_NO_MASK	0x7
+
+#define OBS_TX_PLOS_CNT_SHIFT	4
+#define OBS_TX_PLOS_CNT_MASK	0xf
+#define OBS_TX_PLOS_CNT_VAL(x)	((x) << OBS_TX_PLOS_CNT_SHIFT)
+
+#define OBS_TX_ARC_CNT_SHIFT	0
+#define OBS_TX_ARC_CNT_MASK	0xf
+#define OBS_TX_ARC_CNT_VAL(x)	((x) << OBS_TX_ARC_CNT_SHIFT)
+
+#define RPD_RPD			(1 << 0)
+
+#define RX_PW_PX_MASK		0x3F
+
+#define FIFO_STATUS_TX_REUSE	(1 << 6)
+#define FIFO_STATUS_TX_FULL	(1 << 5)
+#define FIFO_STATUS_TX_EMPTY	(1 << 4)
+#define FIFO_STATUS_RX_FULL	(1 << 1)
+#define FIFO_STATUS_RX_EMPTY	(1 << 0)
+
+#define DYNPD_DPL_P5		(1 << 5)
+#define DYNPD_DPL_P4		(1 << 4)
+#define DYNPD_DPL_P3		(1 << 3)
+#define DYNPD_DPL_P2		(1 << 2)
+#define DYNPD_DPL_P1		(1 << 1)
+#define DYNPD_DPL_P0		(1 << 0)
+
+#define DYNPD_DPL_P(n)		(1 << (n))
+#define DYNPD_DPL_ALL		0x3F
+
+#define FEATURE_EN_DPL		(1 << 2)
+#define FEATURE_EN_ACK_PAY	(1 << 1)
+#define FEATURE_EN_DYN_ACK	(1 << 0)
 
 #endif /* __NRF24L01_H__ */

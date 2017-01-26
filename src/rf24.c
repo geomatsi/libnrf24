@@ -33,13 +33,13 @@ void rf24_enable_dynamic_payload(struct rf24 *r)
 	/* FIXME: check ACTIVATE command in legacy write_feature */
 
 	val = rf24_read_register(r, FEATURE);
-	rf24_write_register(r, FEATURE, val | BIT(EN_DPL));
+	rf24_write_register(r, FEATURE, val | FEATURE_EN_DPL);
 
 	/* enable dynamic payload on all pipes at once */
 	/* FIXME: do we need mixed pipe configuration ? */
 
 	val = rf24_read_register(r, DYNPD);
-	rf24_write_register(r, DYNPD, val | BIN(111111));
+	rf24_write_register(r, DYNPD, val | DYNPD_DPL_ALL);
 
 	r->flags |= RF24_DYNAMIC_PAYLOAD;
 
