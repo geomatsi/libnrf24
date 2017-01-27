@@ -245,3 +245,187 @@ TEST(basic, rf24_set_channel_invalid)
 
 	mock().checkExpectations();
 }
+
+TEST(basic, rf24_set_crc_mode_none)
+{
+	uint8_t config = 0xFF;
+
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xFF)
+		.andReturnValue(config);
+
+	config &= ~(CONFIG_EN_CRC | CONFIG_CRCO);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", config);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	rf24_set_crc_mode(pnrf24, RF24_CRC_NONE);
+
+	mock().checkExpectations();
+}
+
+TEST(basic, rf24_set_crc_mode_8_bits)
+{
+	uint8_t config = 0x0;
+
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xFF)
+		.andReturnValue(config);
+
+	config |= CONFIG_EN_CRC;
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", config);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	rf24_set_crc_mode(pnrf24, RF24_CRC_8_BITS);
+
+	mock().checkExpectations();
+}
+
+TEST(basic, rf24_set_crc_mode_16_bits)
+{
+	uint8_t config = 0x0;
+
+	mock().enable();
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", 0xFF)
+		.andReturnValue(config);
+
+	config |= (CONFIG_EN_CRC | CONFIG_CRCO);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", config);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	rf24_set_crc_mode(pnrf24, RF24_CRC_16_BITS);
+
+	mock().checkExpectations();
+}
+
+TEST(basic, rf24_get_crc_mode)
+{
+	uint8_t reg[] = {
+		0x0,
+		CONFIG_CRCO,
+		CONFIG_EN_CRC,
+		CONFIG_EN_CRC | CONFIG_CRCO,
+	};
+
+	enum rf24_crc_mode  mode[] = {
+		RF24_CRC_NONE,
+		RF24_CRC_NONE,
+		RF24_CRC_8_BITS,
+		RF24_CRC_16_BITS,
+	};
+
+	enum rf24_crc_mode ret;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(reg); i++) {
+		mock()
+			.expectOneCall("csn")
+			.withParameter("level", 0);
+
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
+
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", 0xFF)
+			.andReturnValue(reg[i]);
+
+		mock()
+			.expectOneCall("csn")
+			.withParameter("level", 1);
+
+		ret = rf24_get_crc_mode(pnrf24);
+
+		CHECK_EQUAL(mode[i], ret);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}

@@ -86,3 +86,40 @@ void rf24_set_channel(struct rf24 *r, uint8_t channel)
 
 	rf24_write_register(r, RF_CH, channel);
 }
+
+void rf24_set_crc_mode(struct rf24 *r, enum rf24_crc_mode mode)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, CONFIG);
+	reg &= ~(CONFIG_EN_CRC | CONFIG_CRCO);
+
+	/* use 'if' instead of 'switch' to save memory */
+	if (mode == RF24_CRC_NONE) {
+		/* ready to go */
+	} else if (mode == RF24_CRC_8_BITS) {
+		reg |= CONFIG_EN_CRC;
+	} else if (mode == RF24_CRC_16_BITS) {
+		reg |= (CONFIG_EN_CRC | CONFIG_CRCO);
+	} else {
+		/* should not be here: do nothing */
+		return;
+	}
+
+	rf24_write_register(r, CONFIG, reg);
+}
+
+enum rf24_crc_mode rf24_get_crc_mode(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, CONFIG);
+
+	if ((reg & CONFIG_EN_CRC) == 0)
+		return RF24_CRC_NONE;
+
+	if ((reg & CONFIG_CRCO) == 0)
+		return RF24_CRC_8_BITS;
+
+	return RF24_CRC_16_BITS;
+}
