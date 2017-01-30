@@ -299,3 +299,77 @@ TEST(core, rf24_set_retries)
 		mock().clear();
 	}
 }
+
+TEST(core, rf24_power_up_cold)
+{
+	uint8_t value = 0x0;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
+		.andReturnValue(value);
+
+	value |= CONFIG_PWR_UP;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", CONFIG)
+		.withParameter("val", value);
+
+	mock()
+		.expectOneCall("delay_ms")
+		.withParameter("msec", 2);
+
+	rf24_power_up(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_power_up_warm)
+{
+	uint8_t value = CONFIG_PWR_UP;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
+		.andReturnValue(value);
+
+	rf24_power_up(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_power_down_1)
+{
+	uint8_t value = CONFIG_PWR_UP;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
+		.andReturnValue(value);
+
+	value &= ~CONFIG_PWR_UP;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", CONFIG)
+		.withParameter("val", value);
+
+	rf24_power_down(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_power_down_2)
+{
+	uint8_t value = 0x0;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
+		.andReturnValue(value);
+
+	rf24_power_down(pnrf24);
+
+	mock().checkExpectations();
+}

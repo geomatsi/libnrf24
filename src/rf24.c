@@ -130,3 +130,31 @@ void rf24_set_retries(struct rf24 *r, uint8_t ard, uint8_t arc)
 
 	rf24_write_register(r, SETUP_RETR, val);
 }
+
+void rf24_power_up(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, CONFIG);
+
+	if ((reg & CONFIG_PWR_UP) == 0) {
+		reg |= CONFIG_PWR_UP;
+		rf24_write_register(r, CONFIG, reg);
+
+		/* nRF24L01+ spec: max start-up time 1.5ms */
+		delay_ms(2);
+	}
+}
+
+void rf24_power_down(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, CONFIG);
+
+	if (reg & CONFIG_PWR_UP) {
+		reg &= ~CONFIG_PWR_UP;
+		rf24_write_register(r, CONFIG, reg);
+	}
+}
+
