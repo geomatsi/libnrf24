@@ -11,9 +11,6 @@ TEST_GROUP(core)
 	{
 		pnrf24 = &mock_rf24;
 		rf24_init(pnrf24);
-
-		/* here mock is explicitely enabled where it is needed */
-		mock().disable();
 	}
 
 	void teardown()
@@ -54,6 +51,8 @@ TEST(core, fixed_payload)
 
 TEST(core, enable_dynamic_payload)
 {
+	mock().disable();
+
 	CHECK_FALSE(rf24_is_dynamic_payload(pnrf24));
 	rf24_enable_dynamic_payload(pnrf24);
 	CHECK_TRUE(rf24_is_dynamic_payload(pnrf24));
@@ -64,8 +63,6 @@ TEST(core, get_dynamic_payload_sunny)
 {
 	int expected_len;
 	int actual_len;
-
-	mock().enable();
 
 	/* sunny case: read valid length from nRF24 chip */
 
@@ -88,8 +85,6 @@ TEST(core, get_dynamic_payload_error)
 	int expected_len;
 	int actual_len;
 
-	mock().enable();
-
 	/* error case: read invalid length from nRF24 chip */
 
 	expected_len = RF24_MAX_PAYLOAD_SIZE * 2;
@@ -110,8 +105,6 @@ TEST(core, rf24_fluxh_rx)
 	int expected_status = 0xe;
 	int actual_status;
 
-	mock().enable();
-
 	mock()
 		.expectOneCall("rf24_write_cmd")
 		.withParameter("cmd", FLUSH_RX)
@@ -127,8 +120,6 @@ TEST(core, rf24_fluxh_tx)
 {
 	int expected_status = 0xe;
 	int actual_status;
-
-	mock().enable();
 
 	mock()
 		.expectOneCall("rf24_write_cmd")
@@ -146,8 +137,6 @@ TEST(core, rf24_get_status)
 	int expected_status = 0xe;
 	int actual_status;
 
-	mock().enable();
-
 	mock()
 		.expectOneCall("rf24_write_cmd")
 		.withParameter("cmd", NOP)
@@ -162,8 +151,6 @@ TEST(core, rf24_get_status)
 TEST(core, rf24_set_channel_valid)
 {
 	int channel = 0x10;
-
-	mock().enable();
 
 	mock()
 		.expectOneCall("rf24_write_register")
@@ -180,7 +167,6 @@ TEST(core, rf24_set_channel_invalid)
 {
 	int channel = RF24_MAX_CHANNEL + 1;
 
-	mock().enable();
 	mock().expectNoCall("rf24_write_register");
 
 	rf24_set_channel(pnrf24, channel);
@@ -191,8 +177,6 @@ TEST(core, rf24_set_channel_invalid)
 TEST(core, rf24_set_crc_mode_none)
 {
 	uint8_t config = 0xFF;
-
-	mock().enable();
 
 	mock()
 		.expectOneCall("rf24_read_register")
@@ -216,8 +200,6 @@ TEST(core, rf24_set_crc_mode_8_bits)
 {
 	uint8_t config = 0x0;
 
-	mock().enable();
-
 	mock()
 		.expectOneCall("rf24_read_register")
 		.withParameter("reg", CONFIG)
@@ -239,8 +221,6 @@ TEST(core, rf24_set_crc_mode_8_bits)
 TEST(core, rf24_set_crc_mode_16_bits)
 {
 	uint8_t config = 0x0;
-
-	mock().enable();
 
 	mock()
 		.expectOneCall("rf24_read_register")
