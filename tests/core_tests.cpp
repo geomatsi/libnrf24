@@ -3,7 +3,7 @@
 
 #include <cmd_mock_rf24.h>
 
-TEST_GROUP(basic)
+TEST_GROUP(core)
 {
 	struct rf24 *pnrf24;
 
@@ -22,7 +22,7 @@ TEST_GROUP(basic)
 	}
 };
 
-TEST(basic, init)
+TEST(core, init)
 {
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, mock_rf24.payload_size);
 
@@ -31,7 +31,7 @@ TEST(basic, init)
 	POINTERS_EQUAL(mock_ce, pnrf24->ce);
 }
 
-TEST(basic, fixed_payload)
+TEST(core, fixed_payload)
 {
 	rf24_set_payload_size(pnrf24, -1);
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
@@ -52,7 +52,7 @@ TEST(basic, fixed_payload)
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
 }
 
-TEST(basic, enable_dynamic_payload)
+TEST(core, enable_dynamic_payload)
 {
 	CHECK_FALSE(rf24_is_dynamic_payload(pnrf24));
 	rf24_enable_dynamic_payload(pnrf24);
@@ -60,7 +60,7 @@ TEST(basic, enable_dynamic_payload)
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
 }
 
-TEST(basic, get_dynamic_payload_sunny)
+TEST(core, get_dynamic_payload_sunny)
 {
 	int expected_len;
 	int actual_len;
@@ -83,7 +83,7 @@ TEST(basic, get_dynamic_payload_sunny)
 	mock().checkExpectations();
 }
 
-TEST(basic, get_dynamic_payload_error)
+TEST(core, get_dynamic_payload_error)
 {
 	int expected_len;
 	int actual_len;
@@ -105,7 +105,7 @@ TEST(basic, get_dynamic_payload_error)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_fluxh_rx)
+TEST(core, rf24_fluxh_rx)
 {
 	int expected_status = 0xe;
 	int actual_status;
@@ -123,7 +123,7 @@ TEST(basic, rf24_fluxh_rx)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_fluxh_tx)
+TEST(core, rf24_fluxh_tx)
 {
 	int expected_status = 0xe;
 	int actual_status;
@@ -141,7 +141,7 @@ TEST(basic, rf24_fluxh_tx)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_get_status)
+TEST(core, rf24_get_status)
 {
 	int expected_status = 0xe;
 	int actual_status;
@@ -159,7 +159,7 @@ TEST(basic, rf24_get_status)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_set_channel_valid)
+TEST(core, rf24_set_channel_valid)
 {
 	int channel = 0x10;
 
@@ -176,7 +176,7 @@ TEST(basic, rf24_set_channel_valid)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_set_channel_invalid)
+TEST(core, rf24_set_channel_invalid)
 {
 	int channel = RF24_MAX_CHANNEL + 1;
 
@@ -188,7 +188,7 @@ TEST(basic, rf24_set_channel_invalid)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_set_crc_mode_none)
+TEST(core, rf24_set_crc_mode_none)
 {
 	uint8_t config = 0xFF;
 
@@ -212,7 +212,7 @@ TEST(basic, rf24_set_crc_mode_none)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_set_crc_mode_8_bits)
+TEST(core, rf24_set_crc_mode_8_bits)
 {
 	uint8_t config = 0x0;
 
@@ -236,7 +236,7 @@ TEST(basic, rf24_set_crc_mode_8_bits)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_set_crc_mode_16_bits)
+TEST(core, rf24_set_crc_mode_16_bits)
 {
 	uint8_t config = 0x0;
 
@@ -260,7 +260,7 @@ TEST(basic, rf24_set_crc_mode_16_bits)
 	mock().checkExpectations();
 }
 
-TEST(basic, rf24_get_crc_mode)
+TEST(core, rf24_get_crc_mode)
 {
 	uint8_t reg[] = {
 		0x0,
