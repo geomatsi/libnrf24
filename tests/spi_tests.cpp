@@ -3,7 +3,7 @@
 
 #include <cstring>
 
-#include <mock_rf24.h>
+#include <spi_mock_rf24.h>
 
 TEST_GROUP(rf24_cmds)
 {

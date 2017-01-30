@@ -1,5 +1,5 @@
-#ifndef __STUB__NRF24_H__
-#define __STUB__NRF24_H__
+#ifndef __SPI_STUB_NRF24_H__
+#define __SPI_STUB_NRF24_H__
 
 extern "C"
 {
@@ -21,4 +21,4 @@ extern void mock_ce(int level);
 extern uint8_t mock_spi_xfer_sbyte(uint8_t dat);
 extern int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len);
 
-#endif /* __STUB_NRF24_H__ */
+#endif /* __SPI_STUB_NRF24_H__ */

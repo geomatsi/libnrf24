@@ -46,25 +46,41 @@ ARFLAGS	= rcs
 $(LIBNAME)_$(TARGET).a: $(OBJS)
 	$(AR) $(ARFLAGS) "$@" $(OBJS)
 
-build_prod: $(LIBNAME)_$(TARGET).a
+prod: $(LIBNAME)_$(TARGET).a
 
 # TESTS
 
 TEST_DIR = tests
 
-TEST_OBJS = \
+CPP_UTEST_LIBS = -lCppUTest -lCppUTestExt
+
+CMDS_TEST_OBJS = \
 	$(TEST_DIR)/main_test.o \
-	$(TEST_DIR)/basic_tests.o \
-	$(TEST_DIR)/cmd_tests.o \
-	$(TEST_DIR)/mock.o
+	$(TEST_DIR)/spi_tests.o \
+	$(TEST_DIR)/spi_mock.o \
+	$(SRC_DIR)/rf24_cmds.o \
+	$(SRC_DIR)/rf24.o
 
-TEST_LIBS = -lCppUTest -lCppUTestExt
+cmds_tests: $(CMDS_TEST_OBJS)
+	$(CXX) -o cmds_tests $(CMDS_TEST_OBJS) $(CPP_UTEST_LIBS)
 
-build_tests: build_prod $(TEST_OBJS)
-	$(CXX) -o run_tests $(TEST_OBJS) $(TEST_LIBS) $(LIBNAME)_$(TARGET).a
+run_cmds_tests: cmds_tests
+	./cmds_tests -c
 
-run_tests: build_tests
-	./run_tests -c
+CORE_TEST_OBJS = \
+	$(TEST_DIR)/main_test.o \
+	$(TEST_DIR)/core_tests.o \
+	$(TEST_DIR)/cmd_mock.o \
+	$(SRC_DIR)/rf24.o
+
+core_tests: $(CORE_TEST_OBJS)
+	$(CXX) -o core_tests $(CORE_TEST_OBJS) $(CPP_UTEST_LIBS)
+
+run_core_tests: core_tests
+	./core_tests -c
+
+
+run_tests: run_cmds_tests run_core_tests
 
 #
 
@@ -76,6 +92,7 @@ clean_prod:
 
 clean_test:
 	rm -f $(TEST_DIR)/*.o
-	rm -f run_tests
+	rm -f cmds_tests
+	rm -f core_tests
 
 .PHONY: clean

@@ -51,10 +51,7 @@ int rf24_get_dynamic_payload_size(struct rf24 *r)
 {
 	int len;
 
-	r->csn(0);
-	r->spi_xfer(R_RX_PL_WID);
-	len = r->spi_xfer(0xff);
-	r->csn(1);
+	len = rf24_read_cmd(r, R_RX_PL_WID, (uint8_t *)&len, 1);
 
 	/* sanity check */
 	if ((len < 0) || (len > 32))

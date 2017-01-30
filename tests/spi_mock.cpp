@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
-#include <mock_rf24.h>
+#include <spi_mock_rf24.h>
 
 void delay_ms(int msec)
 {

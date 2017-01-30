@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
-#include <mock_rf24.h>
+#include <cmd_mock_rf24.h>
 
 TEST_GROUP(basic)
 {
@@ -72,21 +72,10 @@ TEST(basic, get_dynamic_payload_sunny)
 	expected_len = 10;
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", R_RX_PL_WID);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xff)
+		.expectOneCall("rf24_read_cmd")
+		//.withParameter("r", pnrf24)
+		.withParameter("cmd", R_RX_PL_WID)
 		.andReturnValue(expected_len);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
 
 	actual_len = rf24_get_dynamic_payload_size(pnrf24);
 	CHECK_EQUAL(expected_len, actual_len);
@@ -106,21 +95,9 @@ TEST(basic, get_dynamic_payload_error)
 	expected_len = RF24_MAX_PAYLOAD_SIZE * 2;
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", R_RX_PL_WID);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xff)
+		.expectOneCall("rf24_read_cmd")
+		.withParameter("cmd", R_RX_PL_WID)
 		.andReturnValue(expected_len);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
 
 	actual_len = rf24_get_dynamic_payload_size(pnrf24);
 	CHECK_EQUAL(-1, actual_len);
@@ -136,17 +113,9 @@ TEST(basic, rf24_fluxh_rx)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", FLUSH_RX)
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", FLUSH_RX)
 		.andReturnValue(expected_status);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
 
 	actual_status = rf24_flush_rx(pnrf24);
 	CHECK_EQUAL(expected_status, actual_status);
@@ -162,17 +131,9 @@ TEST(basic, rf24_fluxh_tx)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", FLUSH_TX)
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", FLUSH_TX)
 		.andReturnValue(expected_status);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
 
 	actual_status = rf24_flush_tx(pnrf24);
 	CHECK_EQUAL(expected_status, actual_status);
@@ -188,17 +149,9 @@ TEST(basic, rf24_get_status)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", NOP)
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
 		.andReturnValue(expected_status);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
 
 	actual_status = rf24_get_status(pnrf24);
 	CHECK_EQUAL(expected_status, actual_status);
@@ -213,20 +166,10 @@ TEST(basic, rf24_set_channel_valid)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", W_REGISTER | (REGISTER_MASK & RF_CH));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", channel);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", RF_CH)
+		.withParameter("val", channel)
+		.andReturnValue(0xe);
 
 	rf24_set_channel(pnrf24, channel);
 
@@ -238,8 +181,7 @@ TEST(basic, rf24_set_channel_invalid)
 	int channel = RF24_MAX_CHANNEL + 1;
 
 	mock().enable();
-	mock().expectNoCall("csn");
-	mock().expectNoCall("spi_xfer_sbyte");
+	mock().expectNoCall("rf24_write_register");
 
 	rf24_set_channel(pnrf24, channel);
 
@@ -253,39 +195,17 @@ TEST(basic, rf24_set_crc_mode_none)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xFF)
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
 		.andReturnValue(config);
 
 	config &= ~(CONFIG_EN_CRC | CONFIG_CRCO);
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", config);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", CONFIG)
+		.withParameter("val", config)
+		.andReturnValue(0xe);
 
 	rf24_set_crc_mode(pnrf24, RF24_CRC_NONE);
 
@@ -299,39 +219,17 @@ TEST(basic, rf24_set_crc_mode_8_bits)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xFF)
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
 		.andReturnValue(config);
 
 	config |= CONFIG_EN_CRC;
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", config);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", CONFIG)
+		.withParameter("val", config)
+		.andReturnValue(0xe);
 
 	rf24_set_crc_mode(pnrf24, RF24_CRC_8_BITS);
 
@@ -345,39 +243,17 @@ TEST(basic, rf24_set_crc_mode_16_bits)
 	mock().enable();
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", 0xFF)
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", CONFIG)
 		.andReturnValue(config);
 
 	config |= (CONFIG_EN_CRC | CONFIG_CRCO);
 
 	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 0);
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", W_REGISTER | (REGISTER_MASK & CONFIG));
-
-	mock()
-		.expectOneCall("spi_xfer_sbyte")
-		.withParameter("dat", config);
-
-	mock()
-		.expectOneCall("csn")
-		.withParameter("level", 1);
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", CONFIG)
+		.withParameter("val", config)
+		.andReturnValue(0xe);
 
 	rf24_set_crc_mode(pnrf24, RF24_CRC_16_BITS);
 
@@ -405,22 +281,11 @@ TEST(basic, rf24_get_crc_mode)
 	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
 
 	for (unsigned int i = 0; i < sizeof(reg); i++) {
-		mock()
-			.expectOneCall("csn")
-			.withParameter("level", 0);
 
 		mock()
-			.expectOneCall("spi_xfer_sbyte")
-			.withParameter("dat", R_REGISTER | (REGISTER_MASK & CONFIG));
-
-		mock()
-			.expectOneCall("spi_xfer_sbyte")
-			.withParameter("dat", 0xFF)
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", CONFIG)
 			.andReturnValue(reg[i]);
-
-		mock()
-			.expectOneCall("csn")
-			.withParameter("level", 1);
 
 		ret = rf24_get_crc_mode(pnrf24);
 

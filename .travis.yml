@@ -22,11 +22,11 @@ script:
 - make CROSS_COMPILE= TARGET=x86 clean
 
 # build library
-- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 build_prod
+- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 prod
 - make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 clean
-- make CROSS_COMPILE=avr- TARGET=avr build_prod
+- make CROSS_COMPILE=avr- TARGET=avr prod
 - make CROSS_COMPILE=avr- TARGET=avr clean
-- make CROSS_COMPILE= TARGET=x86 build_prod
+- make CROSS_COMPILE= TARGET=x86 prod
 - make CROSS_COMPILE= TARGET=x86 clean
 
 install: true
