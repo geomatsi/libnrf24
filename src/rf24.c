@@ -120,3 +120,13 @@ enum rf24_crc_mode rf24_get_crc_mode(struct rf24 *r)
 
 	return RF24_CRC_16_BITS;
 }
+
+void rf24_set_retries(struct rf24 *r, uint8_t ard, uint8_t arc)
+{
+	uint8_t val = 0;
+
+	val |= SETUP_RETR_ARC_VAL(arc & SETUP_RETR_ARC_MASK);
+	val |= SETUP_RETR_ARD_VAL(ard & SETUP_RETR_ARD_MASK);
+
+	rf24_write_register(r, SETUP_RETR, val);
+}

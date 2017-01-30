@@ -50,5 +50,6 @@ void rf24_set_channel(struct rf24 *r, uint8_t channel);
 
 void rf24_set_crc_mode(struct rf24 *r, enum rf24_crc_mode mode);
 enum rf24_crc_mode rf24_get_crc_mode(struct rf24 *r);
+void rf24_set_retries(struct rf24 *r, uint8_t ard, uint8_t arc);
 
 #endif /* __NRF24_H__ */

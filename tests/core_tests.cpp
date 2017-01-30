@@ -294,3 +294,28 @@ TEST(core, rf24_get_crc_mode)
 		mock().clear();
 	}
 }
+
+TEST(core, rf24_set_retries)
+{
+	uint8_t ard[] = {0x00, 0x01, 0x11, 0x01, 0x11};
+	uint8_t arc[] = {0x00, 0x02, 0x02, 0x22, 0x22};
+	uint8_t value;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(ard); i++) {
+
+		value = SETUP_RETR_ARC_VAL(arc[i] & SETUP_RETR_ARC_MASK) |
+			SETUP_RETR_ARD_VAL(ard[i] & SETUP_RETR_ARD_MASK);
+
+		mock()
+			.expectOneCall("rf24_write_register")
+			.withParameter("reg", SETUP_RETR)
+			.withParameter("val", value);
+
+		rf24_set_retries(pnrf24, ard[i], arc[i]);
+
+		mock().checkExpectations();
+		mock().clear();
+	}
+}
