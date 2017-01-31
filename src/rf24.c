@@ -158,3 +158,45 @@ void rf24_power_down(struct rf24 *r)
 	}
 }
 
+/* Feature activation/deactivation is relevant for nRF24L01 only:
+ *   - R_RX_PL_WID
+ *   - W_ACK_PAYLOAD
+ *   - W_TX_PAYLOAD_NOACK
+ *
+ * Note: this command should be executed in
+ * power down or stand by modes only.
+ */
+
+void rf24_activate_features(struct rf24 *r)
+{
+	uint8_t data = ACTIVATE_DATA;
+	uint8_t v1, v2;
+
+	v1 = rf24_read_register(r, FEATURE);
+	rf24_write_register(r, FEATURE, (~v1) & FEATURE_EN_ALL);
+	v2 = rf24_read_register(r, FEATURE);
+
+	if (v1 == v2) {
+		/* activate features */
+		rf24_write_cmd(r, ACTIVATE, &data, 1);
+	} else {
+		/* features are already active: restore original value */
+		rf24_write_register(r, FEATURE, v1);
+	}
+}
+
+void rf24_deactivate_features(struct rf24 *r)
+{
+	uint8_t data = ACTIVATE_DATA;
+	uint8_t v1, v2;
+
+	v1 = rf24_read_register(r, FEATURE);
+	rf24_write_register(r, FEATURE, (~v1) & FEATURE_EN_ALL);
+	v2 = rf24_read_register(r, FEATURE);
+
+	if (v1 != v2) {
+		/* reset and deactivate features */
+		rf24_write_register(r, FEATURE, 0x0);
+		rf24_write_cmd(r, ACTIVATE, &data, 1);
+	}
+}

@@ -30,7 +30,6 @@
 #define R_REGISTER		0x00
 #define W_REGISTER		0x20
 #define REGISTER_MASK		0x1F
-#define ACTIVATE		0x50
 #define R_RX_PL_WID		0x60
 #define R_RX_PAYLOAD		0x61
 #define W_TX_PAYLOAD		0xA0
@@ -39,6 +38,17 @@
 #define FLUSH_RX		0xE2
 #define REUSE_TX_PL		0xE3
 #define NOP			0xFF
+
+/* From nRF24L01 datasheet:
+ * The R_RX_PL_WID, W_ACK_PAYLOAD, and W_TX_PAYLOAD_NOACK features registers are initially
+ * in a deactivated state; a write has no effect, a read only results in zeros on MISO.
+ * To activate these registers, use the ACTIVATE command followed by data 0x73.
+ * Then they can be accessed as any other register in nRF24L01.
+ * Use the same command and data to deactivate the registers again.
+ */
+
+#define ACTIVATE		0x50
+#define ACTIVATE_DATA		0x73
 
 /* Register map table */
 
@@ -178,5 +188,6 @@
 #define FEATURE_EN_DPL		(1 << 2)
 #define FEATURE_EN_ACK_PAY	(1 << 1)
 #define FEATURE_EN_DYN_ACK	(1 << 0)
+#define FEATURE_EN_ALL		0x7
 
 #endif /* __NRF24L01_H__ */

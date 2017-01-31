@@ -55,4 +55,7 @@ enum rf24_crc_mode rf24_get_crc_mode(struct rf24 *r);
 void rf24_power_down(struct rf24 *r);
 void rf24_power_up(struct rf24 *r);
 
+void rf24_activate_features(struct rf24 *r);
+void rf24_deactivate_features(struct rf24 *r);
+
 #endif /* __NRF24_H__ */

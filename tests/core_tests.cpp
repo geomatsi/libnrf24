@@ -373,3 +373,129 @@ TEST(core, rf24_power_down_2)
 
 	mock().checkExpectations();
 }
+
+TEST(core, rf24_activate_features_when_disabled)
+{
+	uint8_t v1 = 0x0;
+	uint8_t v2;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	v2 = (~v1) & FEATURE_EN_ALL;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", v2);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", ACTIVATE);
+
+	rf24_activate_features(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_activate_features_when_enabled)
+{
+	uint8_t v1 = 0x1;
+	uint8_t v2;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	v2 = (~v1) & FEATURE_EN_ALL;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", v2);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v2);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", v1);
+
+	rf24_activate_features(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_deactivate_features_when_enabled)
+{
+	uint8_t v1 = 0x0;
+	uint8_t v2;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	v2 = (~v1) & FEATURE_EN_ALL;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", v2);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v2);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", 0x0);
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", ACTIVATE);
+
+	rf24_deactivate_features(pnrf24);
+
+	mock().checkExpectations();
+}
+
+TEST(core, rf24_deactivate_features_when_disabled)
+{
+	uint8_t v1 = 0x1;
+	uint8_t v2;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	v2 = (~v1) & FEATURE_EN_ALL;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", v2);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(v1);
+
+	rf24_deactivate_features(pnrf24);
+
+	mock().checkExpectations();
+}
