@@ -200,3 +200,48 @@ void rf24_deactivate_features(struct rf24 *r)
 		rf24_write_cmd(r, ACTIVATE, &data, 1);
 	}
 }
+
+void rf24_set_data_rate(struct rf24 *r, enum rf24_data_rate rate)
+{
+	uint8_t value;
+
+	value = rf24_read_register(r, RF_SETUP) ;
+	value &= ~(RF_SETUP_RF_DR_LOW | RF_SETUP_RF_DR_HIGH);
+
+	/* use 'if' instead of 'switch' to save memory */
+
+	if (rate == RF24_RATE_250K) {
+		value |= RF_SETUP_RF_DR_LOW;
+	} else if (rate == RF24_RATE_2M) {
+		value |= RF_SETUP_RF_DR_HIGH;
+	} else if (rate == RF24_RATE_1M) {
+		/* do nothing: DR bits already cleared */
+	} else {
+		/* invalid input: keep former value */
+		return;
+	}
+
+	rf24_write_register(r, RF_SETUP, value);
+}
+
+enum rf24_data_rate rf24_get_data_rate(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, RF_SETUP);
+	reg &= (RF_SETUP_RF_DR_HIGH | RF_SETUP_RF_DR_LOW);
+
+	if (reg == 0) {
+		return RF24_RATE_1M;
+	}
+
+	if (reg ==  RF_SETUP_RF_DR_HIGH) {
+		return RF24_RATE_2M;
+	}
+
+	if (reg == RF_SETUP_RF_DR_LOW) {
+		return RF24_RATE_250K;
+	}
+
+	return RESERVED;
+}

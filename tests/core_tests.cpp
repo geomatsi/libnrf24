@@ -499,3 +499,94 @@ TEST(core, rf24_deactivate_features_when_disabled)
 
 	mock().checkExpectations();
 }
+
+TEST(core, rf24_set_data_rate_valid)
+{
+	enum rf24_data_rate rate[] = {
+		RF24_RATE_1M,
+		RF24_RATE_2M,
+		RF24_RATE_250K,
+	};
+
+	uint8_t reg[] = {
+		0,
+		RF_SETUP_RF_DR_HIGH,
+		RF_SETUP_RF_DR_LOW,
+	};
+
+	uint8_t value;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(reg); i++) {
+
+		value = ~0;
+
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_SETUP)
+			.andReturnValue(value);
+
+		value &= ~(RF_SETUP_RF_DR_LOW | RF_SETUP_RF_DR_HIGH);
+		value |= reg[i];
+
+		mock()
+			.expectOneCall("rf24_write_register")
+			.withParameter("reg", RF_SETUP)
+			.withParameter("val", value);
+
+		rf24_set_data_rate(pnrf24, rate[i]);
+
+		mock().checkExpectations();
+		mock().clear();
+	}
+};
+
+TEST(core, rf24_set_data_rate_invalid)
+{
+	/* invalid rate */
+	enum rf24_data_rate rate = RESERVED;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", RF_SETUP);
+
+	rf24_set_data_rate(pnrf24, rate);
+
+	mock().checkExpectations();
+};
+
+TEST(core, rf24_get_data_rate)
+{
+	enum rf24_data_rate expected_rate[] = {
+		RF24_RATE_1M,
+		RF24_RATE_2M,
+		RF24_RATE_250K,
+		RESERVED,
+	};
+
+	uint8_t reg[] = {
+		0,
+		RF_SETUP_RF_DR_HIGH,
+		RF_SETUP_RF_DR_LOW,
+		RF_SETUP_RF_DR_HIGH | RF_SETUP_RF_DR_LOW,
+	};
+
+	enum rf24_data_rate actual_rate;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(reg); i++) {
+
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_SETUP)
+			.andReturnValue(reg[i]);
+
+		actual_rate = rf24_get_data_rate(pnrf24);
+
+		CHECK_EQUAL(expected_rate[i], actual_rate);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}

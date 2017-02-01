@@ -36,6 +36,13 @@ enum rf24_crc_mode {
 	RF24_CRC_16_BITS,
 };
 
+enum rf24_data_rate {
+	RF24_RATE_1M = 0,
+	RF24_RATE_2M,
+	RF24_RATE_250K,
+	RESERVED,
+};
+
 void rf24_init(struct rf24 *r);
 void rf24_enable_dynamic_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
@@ -57,5 +64,8 @@ void rf24_power_up(struct rf24 *r);
 
 void rf24_activate_features(struct rf24 *r);
 void rf24_deactivate_features(struct rf24 *r);
+
+void rf24_set_data_rate(struct rf24 *r, enum rf24_data_rate rate);
+enum rf24_data_rate rf24_get_data_rate(struct rf24 *r);
 
 #endif /* __NRF24_H__ */
