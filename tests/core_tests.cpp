@@ -590,3 +590,100 @@ TEST(core, rf24_get_data_rate)
 		mock().clear();
 	}
 }
+
+TEST(core, rf24_set_pa_level_valid)
+{
+	enum rf24_pa_level level[] = {
+		RF24_PA_MIN,
+		RF24_PA_M18DBM,
+		RF24_PA_M12DBM,
+		RF24_PA_M06DBM,
+		RF24_PA_M00DBM,
+		RF24_PA_MAX,
+	};
+
+	uint8_t reg[] = {
+		RF_SETUP_RF_PWR_VAL(0),
+		RF_SETUP_RF_PWR_VAL(0),
+		RF_SETUP_RF_PWR_VAL(1),
+		RF_SETUP_RF_PWR_VAL(2),
+		RF_SETUP_RF_PWR_VAL(3),
+		RF_SETUP_RF_PWR_VAL(3),
+	};
+
+	uint8_t value;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(reg); i++) {
+
+		value = ~0;
+
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_SETUP)
+			.andReturnValue(value);
+
+		value &= ~(RF_SETUP_RF_PWR_MASK << RF_SETUP_RF_PWR_SHIFT);
+		value |= reg[i];
+
+		mock()
+			.expectOneCall("rf24_write_register")
+			.withParameter("reg", RF_SETUP)
+			.withParameter("val", value);
+
+		rf24_set_pa_level(pnrf24, level[i]);
+
+		mock().checkExpectations();
+		mock().clear();
+	}
+};
+
+TEST(core, rf24_set_pa_level_invalid)
+{
+	/* invalid rate */
+	enum rf24_pa_level level = (enum rf24_pa_level)100;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", RF_SETUP);
+
+	rf24_set_pa_level(pnrf24, level);
+
+	mock().checkExpectations();
+};
+
+TEST(core, rf24_get_pa_level)
+{
+	enum rf24_pa_level expected_level[] = {
+		RF24_PA_M18DBM,
+		RF24_PA_M12DBM,
+		RF24_PA_M06DBM,
+		RF24_PA_M00DBM,
+	};
+
+	uint8_t reg[] = {
+		RF_SETUP_RF_PWR_VAL(0),
+		RF_SETUP_RF_PWR_VAL(1),
+		RF_SETUP_RF_PWR_VAL(2),
+		RF_SETUP_RF_PWR_VAL(3),
+	};
+
+	enum rf24_pa_level actual_level;
+
+	// TODO: add compile time assert to check sizeof(reg) == sizeof(mode)
+
+	for (unsigned int i = 0; i < sizeof(reg); i++) {
+
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_SETUP)
+			.andReturnValue(reg[i]);
+
+		actual_level = rf24_get_pa_level(pnrf24);
+
+		CHECK_EQUAL(expected_level[i], actual_level);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}

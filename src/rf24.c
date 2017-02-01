@@ -231,17 +231,59 @@ enum rf24_data_rate rf24_get_data_rate(struct rf24 *r)
 	reg = rf24_read_register(r, RF_SETUP);
 	reg &= (RF_SETUP_RF_DR_HIGH | RF_SETUP_RF_DR_LOW);
 
-	if (reg == 0) {
+	if (reg == 0)
 		return RF24_RATE_1M;
-	}
 
-	if (reg ==  RF_SETUP_RF_DR_HIGH) {
+	if (reg ==  RF_SETUP_RF_DR_HIGH)
 		return RF24_RATE_2M;
-	}
 
-	if (reg == RF_SETUP_RF_DR_LOW) {
+	if (reg == RF_SETUP_RF_DR_LOW)
 		return RF24_RATE_250K;
-	}
 
 	return RESERVED;
+}
+
+void rf24_set_pa_level(struct rf24 *r, enum rf24_pa_level level)
+{
+	uint8_t value;
+
+	value = rf24_read_register(r, RF_SETUP) ;
+	value &= ~(RF_SETUP_RF_PWR_MASK << RF_SETUP_RF_PWR_SHIFT);
+
+	/* use 'if' instead of 'switch' to save memory */
+
+	if (level == RF24_PA_M18DBM || level == RF24_PA_MIN) {
+		value |= RF_SETUP_RF_PWR_VAL(0);
+	} else if (level == RF24_PA_M12DBM) {
+		value |= RF_SETUP_RF_PWR_VAL(1);
+	} else if (level == RF24_PA_M06DBM) {
+		value |= RF_SETUP_RF_PWR_VAL(2);
+	} else if (level == RF24_PA_M00DBM || level == RF24_PA_MAX) {
+		value |= RF_SETUP_RF_PWR_VAL(3);
+	} else {
+		/* invalid input: keep former value */
+		return;
+	}
+
+	rf24_write_register(r, RF_SETUP, value);
+}
+
+enum rf24_pa_level rf24_get_pa_level(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, RF_SETUP);
+	reg &= (RF_SETUP_RF_PWR_MASK << RF_SETUP_RF_PWR_SHIFT);
+
+	if (reg == RF_SETUP_RF_PWR_VAL(0))
+		return RF24_PA_M18DBM;
+
+	if (reg == RF_SETUP_RF_PWR_VAL(1))
+		return RF24_PA_M12DBM;
+
+	if (reg == RF_SETUP_RF_PWR_VAL(2))
+		return RF24_PA_M06DBM;
+
+	/* remaining option: RF_SETUP_PWR_VAL(3)) */
+	return RF24_PA_M00DBM;
 }

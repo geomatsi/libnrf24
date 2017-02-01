@@ -43,6 +43,15 @@ enum rf24_data_rate {
 	RESERVED,
 };
 
+enum rf24_pa_level {
+	RF24_PA_MIN	= 0,
+	RF24_PA_M18DBM	= 0,
+	RF24_PA_M12DBM	= 1,
+	RF24_PA_M06DBM	= 2,
+	RF24_PA_M00DBM	= 3,
+	RF24_PA_MAX	= 3,
+};
+
 void rf24_init(struct rf24 *r);
 void rf24_enable_dynamic_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
@@ -67,5 +76,8 @@ void rf24_deactivate_features(struct rf24 *r);
 
 void rf24_set_data_rate(struct rf24 *r, enum rf24_data_rate rate);
 enum rf24_data_rate rf24_get_data_rate(struct rf24 *r);
+
+void rf24_set_pa_level(struct rf24 *r, enum rf24_pa_level level);
+enum rf24_pa_level rf24_get_pa_level(struct rf24 *r);
 
 #endif /* __NRF24_H__ */
