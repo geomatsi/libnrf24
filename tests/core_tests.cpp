@@ -807,3 +807,19 @@ TEST(core, set_auto_ack_pipe_out_of_range)
 
 	mock().checkExpectations();
 }
+
+TEST(core, get_carrier)
+{
+	int expected_value = 0xa;
+	int actual_value;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", RPD)
+		.andReturnValue(expected_value);
+
+	actual_value = rf24_get_carrier(pnrf24);
+	CHECK_EQUAL(expected_value, actual_value);
+
+	mock().checkExpectations();
+}

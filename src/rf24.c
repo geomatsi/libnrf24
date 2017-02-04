@@ -391,3 +391,8 @@ void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable)
 		rf24_write_register(r, EN_AA, val);
 	}
 }
+
+uint8_t rf24_get_carrier(struct rf24 *r)
+{
+	return rf24_read_register(r, RPD);
+}
