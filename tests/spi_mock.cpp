@@ -39,5 +39,7 @@ struct rf24 mock_rf24 = {
 	mock_ce,
 	mock_spi_xfer_sbyte,
 	0,
-	0
+	0,
+	{0},
+	{0}
 };
