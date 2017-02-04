@@ -15,7 +15,7 @@
 
 #define RF24_MAX_PAYLOAD_SIZE	32
 #define RF24_MAX_CHANNEL	127
-#define RF24_MAX_PIPE_ADDR_LEN	5
+#define RF24_MAX_ADDR_LEN	5
 
 #define RF24_TX_NOACK		BIT(2)
 #define RF24_DYN_PAYLOAD	BIT(3)
@@ -30,8 +30,8 @@ struct rf24 {
 	uint8_t payload_size;
 
 	/* cached p0 rx/tx address to switch between PRX and PTX modes */
-	uint8_t p0_tx_addr[RF24_MAX_PIPE_ADDR_LEN];
-	uint8_t p0_rx_addr[RF24_MAX_PIPE_ADDR_LEN];
+	uint8_t p0_tx_addr[RF24_MAX_ADDR_LEN];
+	uint8_t p0_rx_addr[RF24_MAX_ADDR_LEN];
 };
 
 #define rf24_is_tx_noack(r)	((r)->flags & RF24_TX_NOACK)

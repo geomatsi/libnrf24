@@ -155,6 +155,7 @@
 #define STATUS_TX_DS		(1 << 5)
 #define STATUS_MAX_RT		(1 << 4)
 #define STATUS_TX_FULL		(1 << 0)
+#define STATUS_CLEAR		(STATUS_RX_DR | STATUS_TX_DS | STATUS_MAX_RT)
 
 #define STATUS_RX_P_NO_SHIFT	1
 #define STATUS_RX_P_NO_MASK	0x7

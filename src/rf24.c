@@ -18,7 +18,7 @@ void rf24_init(struct rf24 *r)
 	nrf->payload_size = RF24_MAX_PAYLOAD_SIZE;
 	nrf->flags = 0;
 
-	for (i = 0; i < RF24_MAX_PIPE_ADDR_LEN; i++) {
+	for (i = 0; i < RF24_MAX_ADDR_LEN; i++) {
 		nrf->p0_tx_addr[i] = 0;
 		nrf->p0_rx_addr[i] = 0;
 	}
@@ -35,6 +35,7 @@ void rf24_init(struct rf24 *r)
 	 *   - crc: 16 bits
 	 *   - channel: 76
 	 *   - fixed payload size: 32 bits (max payload size)
+	 *   - auto ack enabled
 	 *   - dynamic payload: disabled
 	 */
 	rf24_set_retries(nrf, BIN(0100), BIN(1111));
@@ -47,7 +48,7 @@ void rf24_init(struct rf24 *r)
 	rf24_write_register(nrf, DYNPD, 0);
 
 	/* reset current status */
-	rf24_write_register(nrf, STATUS, STATUS_RX_DR | STATUS_TX_DS | STATUS_MAX_RT);
+	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
 
 	/* flush buffers */
 	rf24_flush_rx(r);
