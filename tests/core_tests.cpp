@@ -686,3 +686,117 @@ TEST(core, rf24_get_pa_level)
 		mock().clear();
 	}
 }
+
+TEST(core, enable_ack_payload)
+{
+	uint8_t val;
+
+	val = 0;
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FEATURE)
+		.andReturnValue(val);
+
+	val |= (FEATURE_EN_ACK_PAY | FEATURE_EN_DPL);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", FEATURE)
+		.withParameter("val", val);
+
+	val = 0;
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", DYNPD)
+		.andReturnValue(val);
+
+	val |= (DYNPD_DPL_P0 | DYNPD_DPL_P1);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", DYNPD)
+		.withParameter("val", val);
+
+	CHECK_FALSE(rf24_is_ack_payload(pnrf24));
+	rf24_enable_ack_payload(pnrf24);
+	CHECK_TRUE(rf24_is_ack_payload(pnrf24));
+	mock().checkExpectations();
+}
+
+TEST(core, set_auto_ack_all_enable)
+{
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", EN_AA)
+		.withParameter("val", EN_AA_ENAA_ALL);
+
+	rf24_set_auto_ack_all(pnrf24, 1);
+	mock().checkExpectations();
+}
+
+TEST(core, set_auto_ack_all_disable)
+{
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", EN_AA)
+		.withParameter("val", 0);
+
+	rf24_set_auto_ack_all(pnrf24, 0);
+	mock().checkExpectations();
+}
+
+TEST(core, set_auto_ack_pipe_enable)
+{
+	for (int i = 0; i < 6; i++) {
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", EN_AA)
+			.andReturnValue(0);
+
+		mock()
+			.expectOneCall("rf24_write_register")
+			.withParameter("reg", EN_AA)
+			.withParameter("val", EN_AA_ENAA_P(i));
+
+		rf24_set_auto_ack_pipe(pnrf24, i, 1);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}
+
+TEST(core, set_auto_ack_pipe_disable)
+{
+	uint8_t val;
+
+	for (int i = 0; i < 6; i++) {
+		val = 0xff;
+
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", EN_AA)
+			.andReturnValue(val);
+
+		val &= ~EN_AA_ENAA_P(i);
+
+		mock()
+			.expectOneCall("rf24_write_register")
+			.withParameter("reg", EN_AA)
+			.withParameter("val", val);
+
+		rf24_set_auto_ack_pipe(pnrf24, i, 0);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}
+
+TEST(core, set_auto_ack_pipe_out_of_range)
+{
+	mock().expectNoCall("rf24_read_register");
+	mock().expectNoCall("rf24_write_register");
+
+	rf24_set_auto_ack_pipe(pnrf24, -1, 0);
+	rf24_set_auto_ack_pipe(pnrf24, 6, 0);
+	rf24_set_auto_ack_pipe(pnrf24, 7, 0);
+
+	mock().checkExpectations();
+}

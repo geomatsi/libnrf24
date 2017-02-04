@@ -285,3 +285,50 @@ enum rf24_pa_level rf24_get_pa_level(struct rf24 *r)
 	/* remaining option: RF_SETUP_PWR_VAL(3)) */
 	return RF24_PA_M00DBM;
 }
+
+/* From nRF24L01+ datasheet:
+ * If ACK packet payload is activated, ACK packets have dynamic payload lengths
+ * and the Dynamic Payload Length feature should be enabled for pipe 0 on the PTX and PRX.
+ * This is to ensure that they receive the ACK packets with payloads.
+ * If the ACK payload is more than 15 byte in 2Mbps mode the ARD must be 500μS or more,
+ * and if the ACK payload is more than 5 byte in 1Mbps mode the ARD must be 500μS or more.
+ * In 250kbps mode (even when the payload is not in ACK) the ARD must be 500μS or more.
+ */
+void rf24_enable_ack_payload(struct rf24 *r)
+{
+	uint8_t val;
+
+	val = rf24_read_register(r, FEATURE);
+	val |= (FEATURE_EN_ACK_PAY | FEATURE_EN_DPL);
+	rf24_write_register(r, FEATURE, val);
+
+	val = rf24_read_register(r, DYNPD);
+	val |= (DYNPD_DPL_P0 | DYNPD_DPL_P1);
+	rf24_write_register(r, DYNPD, val);
+
+	r->flags |= RF24_ACK_PAYLOAD;
+}
+
+void rf24_set_auto_ack_all(struct rf24 *r, int enable)
+{
+	if (enable)
+		rf24_write_register(r, EN_AA, EN_AA_ENAA_ALL);
+	else
+		rf24_write_register(r, EN_AA, 0);
+}
+
+void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable)
+{
+	uint8_t val;
+
+	if ((pipe >= 0) && (pipe <=5)) {
+		val = rf24_read_register(r, EN_AA);
+
+		if(enable)
+			val |= EN_AA_ENAA_P(pipe);
+		else
+			val &= ~EN_AA_ENAA_P(pipe);
+
+		rf24_write_register(r, EN_AA, val);
+	}
+}

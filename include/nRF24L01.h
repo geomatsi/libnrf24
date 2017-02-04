@@ -112,6 +112,7 @@
 #define EN_AA_ENAA_P1		(1 << 1)
 #define EN_AA_ENAA_P0		(1 << 0)
 
+#define EN_AA_ENAA_ALL		(0x3F)
 #define EN_AA_ENAA_P(n)		(1 << (n))
 
 #define EN_RXADDR_ERX_P5	(1 << 5)
