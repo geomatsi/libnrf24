@@ -299,6 +299,45 @@ TEST(rf24_cmds, write_payload_fixed_1)
 	mock().checkExpectations();
 }
 
+TEST(rf24_cmds, write_payload_fixed_noack)
+{
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd, 0xe};
+	uint8_t ret = 0xe;
+	uint8_t status;
+
+
+	mock().disable();
+	rf24_enable_tx_noack(pnrf24);
+	mock().enable();
+
+	rf24_set_payload_size(pnrf24, sizeof(buf));
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_TX_PAYLOAD_NOACK)
+		.andReturnValue(ret);
+
+	for (unsigned int i = 0; i < sizeof(buf); i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_payload(pnrf24, buf, sizeof(buf));
+	CHECK(rf24_is_tx_noack(pnrf24));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+}
+
 TEST(rf24_cmds, write_payload_fixed_2)
 {
 	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};

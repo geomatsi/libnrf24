@@ -17,6 +17,7 @@
 #define RF24_MAX_CHANNEL	127
 #define RF24_MAX_PIPE_ADDR_LEN	5
 
+#define RF24_TX_NOACK		BIT(2)
 #define RF24_DYN_PAYLOAD	BIT(3)
 #define RF24_ACK_PAYLOAD	BIT(4)
 
@@ -33,8 +34,10 @@ struct rf24 {
 	uint8_t p0_rx_addr[RF24_MAX_PIPE_ADDR_LEN];
 };
 
+#define rf24_is_tx_noack(r)	((r)->flags & RF24_TX_NOACK)
 #define rf24_is_dyn_payload(r)	((r)->flags & RF24_DYN_PAYLOAD)
 #define rf24_is_ack_payload(r)	((r)->flags & RF24_ACK_PAYLOAD)
+
 #define rf24_payload_size(r)	((r)->payload_size)
 
 enum rf24_crc_mode {
@@ -87,6 +90,8 @@ enum rf24_data_rate rf24_get_data_rate(struct rf24 *r);
 void rf24_set_pa_level(struct rf24 *r, enum rf24_pa_level level);
 enum rf24_pa_level rf24_get_pa_level(struct rf24 *r);
 
+void rf24_enable_tx_noack(struct rf24 *r);
+void rf24_disable_tx_noack(struct rf24 *r);
 void rf24_enable_ack_payload(struct rf24 *r);
 void rf24_set_auto_ack_all(struct rf24 *r, int enable);
 void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable);

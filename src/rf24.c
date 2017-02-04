@@ -323,6 +323,28 @@ enum rf24_pa_level rf24_get_pa_level(struct rf24 *r)
 	return RF24_PA_M00DBM;
 }
 
+void rf24_enable_tx_noack(struct rf24 *r)
+{
+	uint8_t val;
+
+	val = rf24_read_register(r, FEATURE);
+	val |= FEATURE_EN_DYN_ACK;
+	rf24_write_register(r, FEATURE, val);
+
+	r->flags |= RF24_TX_NOACK;
+}
+
+void rf24_disable_tx_noack(struct rf24 *r)
+{
+	uint8_t val;
+
+	val = rf24_read_register(r, FEATURE);
+	val &= ~FEATURE_EN_DYN_ACK;
+	rf24_write_register(r, FEATURE, val);
+
+	r->flags &= ~RF24_TX_NOACK;
+}
+
 /* From nRF24L01+ datasheet:
  * If ACK packet payload is activated, ACK packets have dynamic payload lengths
  * and the Dynamic Payload Length feature should be enabled for pipe 0 on the PTX and PRX.

@@ -60,7 +60,10 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 
 	r->csn(0);
 
-	status = r->spi_xfer(W_TX_PAYLOAD);
+	if (rf24_is_tx_noack(r))
+		status = r->spi_xfer(W_TX_PAYLOAD_NOACK);
+	else
+		status = r->spi_xfer(W_TX_PAYLOAD);
 
 	while (dat_len--)
 		r->spi_xfer(*curr++);
