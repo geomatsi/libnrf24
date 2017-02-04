@@ -9,8 +9,13 @@ TEST_GROUP(core)
 
 	void setup()
 	{
+		mock().disable();
+
 		pnrf24 = &mock_rf24;
 		rf24_init(pnrf24);
+
+		mock().enable();
+		mock().clear();
 	}
 
 	void teardown()
@@ -21,6 +26,8 @@ TEST_GROUP(core)
 
 TEST(core, init)
 {
+	mock().disable();
+
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, mock_rf24.payload_size);
 
 	POINTERS_EQUAL(mock_spi_xfer_sbyte, pnrf24->spi_xfer);

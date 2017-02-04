@@ -11,10 +11,47 @@ static struct rf24 *nrf;
 
 void rf24_init(struct rf24 *r)
 {
-	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
-	r->flags = 0;
+	int i;
 
 	nrf = r;
+
+	nrf->payload_size = RF24_MAX_PAYLOAD_SIZE;
+	nrf->flags = 0;
+
+	for (i = 0; i < RF24_MAX_PIPE_ADDR_LEN; i++) {
+		nrf->p0_tx_addr[i] = 0;
+		nrf->p0_rx_addr[i] = 0;
+	}
+
+	r->ce(0);
+	delay_ms(10);
+
+	rf24_activate_features(nrf);
+
+	/* default settings:
+	 *   - automatic retransmit delay: 1500 uS
+	 *   - automatic retransmit count ARC 15
+	 *   - data rate: 1 Mbs
+	 *   - crc: 16 bits
+	 *   - channel: 76
+	 *   - fixed payload size: 32 bits (max payload size)
+	 *   - dynamic payload: disabled
+	 */
+	rf24_set_retries(nrf, BIN(0100), BIN(1111));
+	rf24_set_pa_level(nrf, RF24_PA_MAX);
+	rf24_set_data_rate(nrf, RF24_RATE_1M);
+	rf24_set_crc_mode(nrf, RF24_CRC_16_BITS);
+	rf24_set_channel(nrf, 76);
+	rf24_set_payload_size(nrf, RF24_MAX_PAYLOAD_SIZE);
+	/* disable dynamic payload */
+	rf24_write_register(nrf, DYNPD, 0);
+
+	/* reset current status */
+	rf24_write_register(nrf, STATUS, STATUS_RX_DR | STATUS_TX_DS | STATUS_MAX_RT);
+
+	/* flush buffers */
+	rf24_flush_rx(r);
+	rf24_flush_tx(r);
 }
 
 void rf24_set_payload_size(struct rf24 *r, int len)

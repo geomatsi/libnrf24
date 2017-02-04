@@ -15,6 +15,7 @@
 
 #define RF24_MAX_PAYLOAD_SIZE	32
 #define RF24_MAX_CHANNEL	127
+#define RF24_MAX_PIPE_ADDR_LEN	5
 
 #define RF24_DYN_PAYLOAD	BIT(3)
 #define RF24_ACK_PAYLOAD	BIT(4)
@@ -26,6 +27,10 @@ struct rf24 {
 
 	uint8_t flags;
 	uint8_t payload_size;
+
+	/* cached p0 rx/tx address to switch between PRX and PTX modes */
+	uint8_t p0_tx_addr[RF24_MAX_PIPE_ADDR_LEN];
+	uint8_t p0_rx_addr[RF24_MAX_PIPE_ADDR_LEN];
 };
 
 #define rf24_is_dyn_payload(r)	((r)->flags & RF24_DYN_PAYLOAD)
@@ -85,6 +90,5 @@ enum rf24_pa_level rf24_get_pa_level(struct rf24 *r);
 void rf24_enable_ack_payload(struct rf24 *r);
 void rf24_set_auto_ack_all(struct rf24 *r, int enable);
 void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable);
-
 
 #endif /* __NRF24_H__ */

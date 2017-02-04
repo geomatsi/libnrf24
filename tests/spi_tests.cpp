@@ -11,8 +11,13 @@ TEST_GROUP(rf24_cmds)
 
 	void setup()
 	{
+		mock().disable();
+
 		pnrf24 = &mock_rf24;
 		rf24_init(pnrf24);
+
+		mock().enable();
+		mock().clear();
 	}
 
 	void teardown()
