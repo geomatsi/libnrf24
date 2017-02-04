@@ -16,7 +16,7 @@
 #define RF24_MAX_PAYLOAD_SIZE	32
 #define RF24_MAX_CHANNEL	127
 
-#define RF24_DYNAMIC_PAYLOAD	BIT(3)
+#define RF24_DYN_PAYLOAD	BIT(3)
 
 struct rf24 {
 	void    (*csn)(int level);
@@ -27,8 +27,8 @@ struct rf24 {
 	uint8_t payload_size;
 };
 
-#define rf24_is_dynamic_payload(r)	((r)->flags & RF24_DYNAMIC_PAYLOAD)
-#define rf24_payload_size(r)		((r)->payload_size)
+#define rf24_is_dyn_payload(r)	((r)->flags & RF24_DYN_PAYLOAD)
+#define rf24_payload_size(r)	((r)->payload_size)
 
 enum rf24_crc_mode {
 	RF24_CRC_NONE = 0,
@@ -53,9 +53,9 @@ enum rf24_pa_level {
 };
 
 void rf24_init(struct rf24 *r);
-void rf24_enable_dynamic_payload(struct rf24 *r);
+void rf24_enable_dyn_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
-int rf24_get_dynamic_payload_size(struct rf24 *r);
+int rf24_get_dyn_payload_size(struct rf24 *r);
 
 uint8_t rf24_get_status(struct rf24 *r);
 

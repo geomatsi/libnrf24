@@ -379,7 +379,7 @@ TEST(rf24_cmds, write_payload_dynamic)
 	 * this test is focused on checking dynamic payload transfer
 	 */
 	mock().disable();
-	rf24_enable_dynamic_payload(pnrf24);
+	rf24_enable_dyn_payload(pnrf24);
 	mock().enable();
 
 	mock()
@@ -420,7 +420,7 @@ TEST(rf24_cmds, write_payload_dynamic_boundary)
 	 * this test is focused on checking dynamic payload transfer
 	 */
 	mock().disable();
-	rf24_enable_dynamic_payload(pnrf24);
+	rf24_enable_dyn_payload(pnrf24);
 	mock().enable();
 
 	mock()
@@ -592,7 +592,7 @@ TEST(rf24_cmds, read_payload_dynamic)
 	 * this test is focused on checking dynamic payload transfer
 	 */
 	mock().disable();
-	rf24_enable_dynamic_payload(pnrf24);
+	rf24_enable_dyn_payload(pnrf24);
 	mock().enable();
 
 	mock()
@@ -636,7 +636,7 @@ TEST(rf24_cmds, read_payload_dynamic_boundary)
 	 * this test is focused on checking dynamic payload transfer
 	 */
 	mock().disable();
-	rf24_enable_dynamic_payload(pnrf24);
+	rf24_enable_dyn_payload(pnrf24);
 	mock().enable();
 
 	mock()

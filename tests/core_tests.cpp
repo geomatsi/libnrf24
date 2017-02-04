@@ -53,9 +53,9 @@ TEST(core, enable_dynamic_payload)
 {
 	mock().disable();
 
-	CHECK_FALSE(rf24_is_dynamic_payload(pnrf24));
-	rf24_enable_dynamic_payload(pnrf24);
-	CHECK_TRUE(rf24_is_dynamic_payload(pnrf24));
+	CHECK_FALSE(rf24_is_dyn_payload(pnrf24));
+	rf24_enable_dyn_payload(pnrf24);
+	CHECK_TRUE(rf24_is_dyn_payload(pnrf24));
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, rf24_payload_size(pnrf24));
 }
 
@@ -70,11 +70,10 @@ TEST(core, get_dynamic_payload_sunny)
 
 	mock()
 		.expectOneCall("rf24_read_cmd")
-		//.withParameter("r", pnrf24)
 		.withParameter("cmd", R_RX_PL_WID)
 		.andReturnValue(expected_len);
 
-	actual_len = rf24_get_dynamic_payload_size(pnrf24);
+	actual_len = rf24_get_dyn_payload_size(pnrf24);
 	CHECK_EQUAL(expected_len, actual_len);
 
 	mock().checkExpectations();
@@ -94,7 +93,7 @@ TEST(core, get_dynamic_payload_error)
 		.withParameter("cmd", R_RX_PL_WID)
 		.andReturnValue(expected_len);
 
-	actual_len = rf24_get_dynamic_payload_size(pnrf24);
+	actual_len = rf24_get_dyn_payload_size(pnrf24);
 	CHECK_EQUAL(-1, actual_len);
 
 	mock().checkExpectations();

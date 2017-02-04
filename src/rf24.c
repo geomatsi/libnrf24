@@ -26,11 +26,9 @@ void rf24_set_payload_size(struct rf24 *r, int len)
 	r->payload_size = min_t(uint8_t, len, RF24_MAX_PAYLOAD_SIZE);
 }
 
-void rf24_enable_dynamic_payload(struct rf24 *r)
+void rf24_enable_dyn_payload(struct rf24 *r)
 {
 	uint8_t val;
-
-	/* FIXME: check ACTIVATE command in legacy write_feature */
 
 	val = rf24_read_register(r, FEATURE);
 	rf24_write_register(r, FEATURE, val | FEATURE_EN_DPL);
@@ -41,13 +39,13 @@ void rf24_enable_dynamic_payload(struct rf24 *r)
 	val = rf24_read_register(r, DYNPD);
 	rf24_write_register(r, DYNPD, val | DYNPD_DPL_ALL);
 
-	r->flags |= RF24_DYNAMIC_PAYLOAD;
+	r->flags |= RF24_DYN_PAYLOAD;
 
 	/* set max payload size for boundary checks */
 	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
 }
 
-int rf24_get_dynamic_payload_size(struct rf24 *r)
+int rf24_get_dyn_payload_size(struct rf24 *r)
 {
 	int len;
 

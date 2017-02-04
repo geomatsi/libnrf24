@@ -56,7 +56,7 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 	uint8_t status;
 
 	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
-	pad_len = rf24_is_dynamic_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
+	pad_len = rf24_is_dyn_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
 
 	r->csn(0);
 
@@ -81,7 +81,7 @@ uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 	uint8_t status;
 
 	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
-	pad_len = rf24_is_dynamic_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
+	pad_len = rf24_is_dyn_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
 
 	r->csn(0);
 
