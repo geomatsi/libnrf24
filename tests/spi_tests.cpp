@@ -492,6 +492,96 @@ TEST(rf24_cmds, write_payload_dynamic_boundary)
 	mock().checkExpectations();
 }
 
+/* ack payload tests: rf24_write_ack_payload */
+
+TEST(rf24_cmds, write_ack_payload_ok)
+{
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};
+	uint8_t ret = 0xe;
+	int pipe;
+	uint8_t status;
+
+	for (pipe = 0; pipe < 6; pipe++) {
+		mock()
+			.expectOneCall("csn")
+			.withParameter("level", 0);
+
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", W_ACK_PAYLOAD | (pipe & ACK_PAYLOAD_MASK))
+			.andReturnValue(ret);
+
+		for (unsigned int i = 0; i < sizeof(buf); i++) {
+			mock()
+				.expectOneCall("spi_xfer_sbyte")
+				.withParameter("dat", buf[i]);
+		}
+
+		mock()
+			.expectOneCall("csn")
+			.withParameter("level", 1);
+	}
+
+	for (pipe = 0; pipe < 6; pipe++) {
+		status = rf24_write_ack_payload(pnrf24, pipe, buf, sizeof(buf));
+		CHECK_EQUAL(ret, status);
+	}
+
+	mock().checkExpectations();
+}
+
+TEST(rf24_cmds, write_ack_payload_exceed_max_length)
+{
+	uint8_t buf[RF24_MAX_PAYLOAD_SIZE + 5] = {0};
+	uint8_t ret = 0xe;
+	uint8_t status;
+	int pipe = 4;
+
+	for (unsigned int i = 0; i < sizeof(buf); i++)
+		buf[i] = (i + 1);
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 0);
+
+	mock()
+		.expectOneCall("spi_xfer_sbyte")
+		.withParameter("dat", W_ACK_PAYLOAD | (pipe & ACK_PAYLOAD_MASK))
+		.andReturnValue(ret);
+
+	for (unsigned int i = 0; i < RF24_MAX_PAYLOAD_SIZE; i++) {
+		mock()
+			.expectOneCall("spi_xfer_sbyte")
+			.withParameter("dat", buf[i]);
+	}
+
+	mock()
+		.expectOneCall("csn")
+		.withParameter("level", 1);
+
+	status = rf24_write_ack_payload(pnrf24, pipe, buf, sizeof(buf));
+	CHECK_EQUAL(ret, status);
+
+	mock().checkExpectations();
+
+}
+
+TEST(rf24_cmds, write_ack_payload_invalid_pipe)
+{
+	uint8_t buf[] = {0xa, 0xb, 0xc, 0xd};
+	uint8_t fail = 0xff;
+	int invalid_pipe = 6;
+	uint8_t status;
+
+	mock().expectNoCall("csn");
+	mock().expectNoCall("spi_xfer_sbyte");
+
+	status = rf24_write_ack_payload(pnrf24, invalid_pipe, buf, sizeof(buf));
+	CHECK_EQUAL(fail, status);
+
+	mock().checkExpectations();
+}
+
 /* fixed payload tests: rf24_read_payload */
 
 TEST(rf24_cmds, read_payload_fixed_1)

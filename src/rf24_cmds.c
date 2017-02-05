@@ -50,7 +50,7 @@ uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t val)
 
 uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 {
-	const uint8_t* curr = (uint8_t *)buf;
+	const uint8_t *curr = (uint8_t *)buf;
 	uint8_t dat_len;
 	uint8_t pad_len;
 	uint8_t status;
@@ -76,9 +76,32 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 	return status;
 }
 
+uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
+{
+	const uint8_t *curr = (uint8_t *)buf;
+	uint8_t data_len;
+	uint8_t status;
+
+	/* invalid pipe number: do nothing */
+	if ((pipe < 0) || (pipe > 5))
+		return 0xFF;
+
+	data_len = min_t(uint8_t, len, rf24_payload_size(r));
+
+	r->csn(0);
+
+	status = r->spi_xfer(W_ACK_PAYLOAD | (pipe & ACK_PAYLOAD_MASK));
+	while (data_len--)
+		r->spi_xfer(*curr++);
+
+	r->csn(1);
+
+	return status;
+}
+
 uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 {
-	uint8_t* curr = (uint8_t*) buf;
+	uint8_t *curr = (uint8_t*) buf;
 	uint8_t dat_len;
 	uint8_t pad_len;
 	uint8_t status;
