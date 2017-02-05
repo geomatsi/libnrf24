@@ -97,4 +97,11 @@ void rf24_enable_ack_payload(struct rf24 *r);
 void rf24_set_auto_ack_all(struct rf24 *r, int enable);
 void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable);
 
+
+void rf24_setup_ptx(struct rf24 *r, uint8_t *addr);
+void rf24_start_ptx(struct rf24 *r);
+
+void rf24_setup_prx(struct rf24 *r, int pipe, uint8_t *addr);
+void rf24_start_prx(struct rf24 *r);
+
 #endif /* __NRF24_H__ */

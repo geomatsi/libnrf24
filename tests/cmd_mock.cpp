@@ -48,7 +48,8 @@ uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len)
 {
 	mock().actualCall("rf24_write_address")
-		.withParameter("reg", reg);
+		.withParameter("reg", reg)
+		.withParameter("len", len);
 		return mock().intReturnValue();
 }
 
@@ -68,12 +69,12 @@ void delay_us(int usec)
 
 void mock_csn(int level)
 {
-
+	mock().actualCall("csn").withParameter("level", level);
 }
 
 void mock_ce(int level)
 {
-
+	mock().actualCall("ce").withParameter("level", level);
 }
 
 uint8_t mock_spi_xfer_sbyte(uint8_t dat)

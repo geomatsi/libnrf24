@@ -18,6 +18,7 @@ TEST_GROUP(rf24_cmds)
 
 		mock().enable();
 		mock().clear();
+		mock().strictOrder();
 	}
 
 	void teardown()

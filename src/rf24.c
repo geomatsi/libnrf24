@@ -397,3 +397,101 @@ uint8_t rf24_get_carrier(struct rf24 *r)
 {
 	return rf24_read_register(r, RPD);
 }
+
+void rf24_setup_ptx(struct rf24 *r, uint8_t *addr)
+{
+	int i;
+
+	rf24_write_address(r, RX_ADDR_P0, addr, RF24_MAX_ADDR_LEN);
+	rf24_write_address(r, TX_ADDR, addr, RF24_MAX_ADDR_LEN);
+
+	/* cache tx address */
+	for (i = 0; i < RF24_MAX_ADDR_LEN; i++)
+		r->p0_tx_addr[i] = addr[i];
+
+	if (!rf24_is_dyn_payload(r))
+		rf24_write_register(r, RX_PW_P0, r->payload_size);
+}
+
+void rf24_start_ptx(struct rf24 *r)
+{
+	uint8_t reg;
+
+	r->ce(0);
+	rf24_power_down(r);
+
+	reg = rf24_read_register(r, CONFIG);
+	reg &= ~CONFIG_PRIM_RX;
+	rf24_write_register(r, CONFIG, reg);
+
+	/* reset current status */
+	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
+
+	/* Setup proper TX and RX0 addresses when switch to PTX:
+	 * it is possible that they could have been changed
+	 * during switching between PTX and PRX.
+	 */
+	rf24_write_address(r, RX_ADDR_P0, r->p0_rx_addr, RF24_MAX_ADDR_LEN);
+	rf24_write_address(r, TX_ADDR, r->p0_tx_addr, RF24_MAX_ADDR_LEN);
+
+	rf24_power_up(r);
+	r->ce(0);
+}
+
+void rf24_setup_prx(struct rf24 *r, int pipe, uint8_t *addr)
+{
+	uint8_t reg;
+	int i;
+
+	/* invalid pipe number: do nothing */
+	if ((pipe < 0) || (pipe > 5))
+		return;
+
+	/* cache rx0 address */
+	if (pipe == 0)
+		for (i = 0; i < RF24_MAX_ADDR_LEN; i++)
+			r->p0_rx_addr[i] = addr[i];
+
+	/* From nRF24L01+ spec 7.7:
+	 * Pipes 1-5 share 4 most significant address bytes.
+	 * The LSByte must be unique for all six pipes.
+	 */
+	rf24_write_address(r, RX_ADDR_P(pipe), addr, (pipe < 2) ? RF24_MAX_ADDR_LEN : 1);
+
+	if (!rf24_is_dyn_payload(r))
+		rf24_write_register(r, RX_PW_P(pipe), r->payload_size);
+
+	reg = rf24_read_register(r, EN_RXADDR);
+	rf24_write_register(r, EN_RXADDR, reg | EN_RXADDR_ERX_P(pipe));
+}
+
+void rf24_start_prx(struct rf24 *r)
+{
+	uint8_t reg;
+
+	r->ce(0);
+	rf24_power_down(r);
+
+	reg = rf24_read_register(r, CONFIG);
+	rf24_write_register(r, CONFIG, reg | CONFIG_PRIM_RX);
+
+	/* reset current status */
+	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
+
+	/* Setup proper TX and RX0 addresses when switch to PRX:
+	 * it is possible that they could have been changed
+	 * during switching between PRX and PTX.
+	 *
+	 * Note: p1..p5 addresses are not modified in PTX mode.
+	 */
+	rf24_write_address(r, RX_ADDR_P0, r->p0_rx_addr, RF24_MAX_ADDR_LEN);
+
+
+	rf24_power_up(r);
+	r->ce(1);
+
+	/* from nRF24L01+ spec. Fig.3 (Radio control state diagram):
+	 * RX setting takes ~130us
+	 */
+	delay_us(200);
+}

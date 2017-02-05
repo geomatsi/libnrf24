@@ -16,6 +16,7 @@ TEST_GROUP(core)
 
 		mock().enable();
 		mock().clear();
+		mock().strictOrder();
 	}
 
 	void teardown()

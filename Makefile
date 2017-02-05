@@ -6,8 +6,7 @@
 #   - TARGET: target platform identifier to add to library name
 #   - PLT_FLAGS: platform-specific compile flags, e.g. -mcpu=...
 #   - CFG_FLAGS: linbrf24 configuration switches
-#     -- LIB_RF24_SIZEOPT
-#     -- LIB_RF24_SWEEP_RPD
+#     -- TODO
 #
 
 LIBNAME = libnrf24
@@ -70,6 +69,7 @@ run_cmds_tests: cmds_tests
 CORE_TEST_OBJS = \
 	$(TEST_DIR)/main_test.o \
 	$(TEST_DIR)/core_tests.o \
+	$(TEST_DIR)/uc_tests.o \
 	$(TEST_DIR)/cmd_mock.o \
 	$(SRC_DIR)/rf24.o
 
