@@ -3,7 +3,7 @@
 
 #include <cmd_mock_rf24.h>
 
-uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
+uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
 	mock().actualCall("rf24_write_cmd")
 		.withParameter("cmd", cmd);
@@ -11,11 +11,17 @@ uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
 
 }
 
-uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
+uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
-	mock().actualCall("rf24_read_cmd")
+	uint8_t data = (uint8_t)mock().getData("read").getIntValue();
+
+	mock()
+		.actualCall("rf24_read_cmd")
 		.withParameter("cmd", cmd);
-		return mock().intReturnValue();
+
+	buf[0] = data;
+
+	return mock().intReturnValue();
 }
 
 uint8_t rf24_read_register(struct rf24 *r, uint8_t reg)
@@ -41,7 +47,8 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 
 uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 {
-	mock().actualCall("rf24_read_payload");
+	mock().actualCall("rf24_read_payload")
+		.withParameter("len", len);
 		return mock().intReturnValue();
 }
 

@@ -413,3 +413,118 @@ TEST(usecases, start_prx)
 
 	mock().checkExpectations();
 }
+
+/* Spec. 7.9.1 Figure 15: single transaction with ACK packets and IRQs */
+
+
+TEST(usecases, single_ack_transaction_fixed_payload_rx)
+{
+	void *buf = NULL;	/* fake buffer */
+	int pkt_len  = 20;	/* fixed packet size */
+	int mock_pipe = 3;
+	int pipe;
+	int ret;
+
+	/* mock sequence setup */
+
+	for (int i = 0; i < 5; i++) {
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", FIFO_STATUS)
+			.andReturnValue(FIFO_STATUS_RX_EMPTY);
+	}
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(mock_pipe << STATUS_RX_P_NO_SHIFT);
+
+	mock()
+		.expectOneCall("rf24_read_payload")
+		.withParameter("len", pkt_len)
+		.andReturnValue(STATUS_RX_DR);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_RX_DR);
+
+	/* example rx code: static payload */
+
+	rf24_set_payload_size(pnrf24, pkt_len);
+
+	while(!rf24_rx_ready(pnrf24, &pipe)) {
+		/* sleep some time before next rx check */
+	}
+
+	ret = rf24_recv(pnrf24, buf, pkt_len);
+
+	CHECK_EQUAL(mock_pipe, pipe);
+	CHECK_EQUAL(0, ret);
+	mock().checkExpectations();
+}
+
+TEST(usecases, single_ack_transaction_dynamic_payload_rx)
+{
+	uint8_t expected_pkt_len = 10;
+	uint8_t pkt_len;
+	void *buf = NULL;	/* fake buffer */
+	int mock_pipe = 3;
+	int pipe;
+	int ret;
+
+	/* mock sequence setup */
+
+	for (int i = 0; i < 5; i++) {
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", FIFO_STATUS)
+			.andReturnValue(FIFO_STATUS_RX_EMPTY);
+	}
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(mock_pipe << STATUS_RX_P_NO_SHIFT);
+
+	mock().setData("read", expected_pkt_len);
+
+	mock()
+		.expectOneCall("rf24_read_cmd")
+		.withParameter("cmd", R_RX_PL_WID);
+
+	mock()
+		.expectOneCall("rf24_read_payload")
+		.withParameter("len", expected_pkt_len)
+		.andReturnValue(STATUS_RX_DR);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_RX_DR);
+
+	/* example rx code: dynamic payload */
+
+	while(!rf24_rx_ready(pnrf24, &pipe)) {
+		/* sleep some time before next rx check */
+	}
+
+	pkt_len = rf24_get_dyn_payload_size(pnrf24);
+	ret = rf24_recv(pnrf24, buf, pkt_len);
+
+	CHECK_EQUAL(expected_pkt_len, pkt_len);
+	CHECK_EQUAL(mock_pipe, pipe);
+	CHECK_EQUAL(0, ret);
+
+	mock().checkExpectations();
+}

@@ -65,7 +65,7 @@ enum rf24_pa_level {
 void rf24_init(struct rf24 *r);
 void rf24_enable_dyn_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
-int rf24_get_dyn_payload_size(struct rf24 *r);
+uint8_t rf24_get_dyn_payload_size(struct rf24 *r);
 
 uint8_t rf24_get_status(struct rf24 *r);
 uint8_t rf24_get_carrier(struct rf24 *r);
@@ -103,5 +103,8 @@ void rf24_start_ptx(struct rf24 *r);
 
 void rf24_setup_prx(struct rf24 *r, int pipe, uint8_t *addr);
 void rf24_start_prx(struct rf24 *r);
+
+int rf24_rx_ready(struct rf24 *r, int *ppipe);
+int rf24_recv(struct rf24 *r, void *buf, int len);
 
 #endif /* __NRF24_H__ */

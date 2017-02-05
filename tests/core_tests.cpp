@@ -69,17 +69,16 @@ TEST(core, enable_dynamic_payload)
 
 TEST(core, get_dynamic_payload_sunny)
 {
-	int expected_len;
+	int expected_len = 10;
 	int actual_len;
 
 	/* sunny case: read valid length from nRF24 chip */
 
-	expected_len = 10;
+	mock().setData("read", expected_len);
 
 	mock()
 		.expectOneCall("rf24_read_cmd")
-		.withParameter("cmd", R_RX_PL_WID)
-		.andReturnValue(expected_len);
+		.withParameter("cmd", R_RX_PL_WID);
 
 	actual_len = rf24_get_dyn_payload_size(pnrf24);
 	CHECK_EQUAL(expected_len, actual_len);
@@ -89,20 +88,19 @@ TEST(core, get_dynamic_payload_sunny)
 
 TEST(core, get_dynamic_payload_error)
 {
-	int expected_len;
+	int expected_len = RF24_MAX_PAYLOAD_SIZE * 2;
 	int actual_len;
 
 	/* error case: read invalid length from nRF24 chip */
 
-	expected_len = RF24_MAX_PAYLOAD_SIZE * 2;
+	mock().setData("read", expected_len);
 
 	mock()
 		.expectOneCall("rf24_read_cmd")
-		.withParameter("cmd", R_RX_PL_WID)
-		.andReturnValue(expected_len);
+		.withParameter("cmd", R_RX_PL_WID);
 
 	actual_len = rf24_get_dyn_payload_size(pnrf24);
-	CHECK_EQUAL(-1, actual_len);
+	CHECK_EQUAL(0xff, actual_len);
 
 	mock().checkExpectations();
 }

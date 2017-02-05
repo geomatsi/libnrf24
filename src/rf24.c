@@ -83,15 +83,15 @@ void rf24_enable_dyn_payload(struct rf24 *r)
 	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
 }
 
-int rf24_get_dyn_payload_size(struct rf24 *r)
+uint8_t rf24_get_dyn_payload_size(struct rf24 *r)
 {
-	int len;
+	uint8_t len;
 
-	len = rf24_read_cmd(r, R_RX_PL_WID, (uint8_t *)&len, 1);
+	rf24_read_cmd(r, R_RX_PL_WID, &len, 1);
 
 	/* sanity check */
-	if ((len < 0) || (len > 32))
-		len = -1;
+	if (len > 32)
+		len = 0xff;
 
 	return len;
 }
@@ -494,4 +494,33 @@ void rf24_start_prx(struct rf24 *r)
 	 * RX setting takes ~130us
 	 */
 	delay_us(200);
+}
+
+int rf24_rx_ready(struct rf24 *r, int *ppipe)
+{
+	uint8_t rx_ready;
+	uint8_t status;
+
+	rx_ready = (rf24_read_register(r, FIFO_STATUS) & FIFO_STATUS_RX_EMPTY) ? 0 : 1;
+
+	if (rx_ready && ppipe) {
+		status = rf24_get_status(r);
+		*ppipe = (status >> STATUS_RX_P_NO_SHIFT) & STATUS_RX_P_NO_MASK;
+	}
+
+	return rx_ready;
+}
+
+/* FIXME: make sure that buf has enough space for dynamic payload */
+int rf24_recv(struct rf24 *r, void *buf, int len)
+{
+	uint8_t status;
+
+	status = rf24_read_payload(r, buf, len);
+
+	/* clear RX_DR bit */
+	if (status & STATUS_RX_DR)
+		rf24_write_register(r, STATUS, STATUS_RX_DR);
+
+	return 0;
 }
