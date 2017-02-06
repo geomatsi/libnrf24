@@ -527,3 +527,63 @@ TEST(usecases, single_ack_transaction_dynamic_payload_rx)
 
 	mock().checkExpectations();
 }
+
+TEST(usecases, single_ack_transaction_tx)
+{
+	void *buf = (void *)0x1;	/* fake buffer */
+	int pkt_len  = 20;		/* fixed packet size */
+	enum rf24_tx_status ret;
+
+	/* mock sequence setup */
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("rf24_write_payload")
+		.withParameter("len", pkt_len)
+		.andReturnValue(STATUS_RX_DR);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("ce")
+		.withParameter("level", 1);
+
+	mock()
+		.expectOneCall("delay_us")
+		.withParameter("usec", 20);
+
+	mock()
+		.expectOneCall("ce")
+		.withParameter("level", 0);
+
+	for (int i = 0; i < 4; i++) {
+		mock()
+			.expectOneCall("rf24_write_cmd")
+			.withParameter("cmd", NOP)
+			.andReturnValue(0x0);
+	}
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(STATUS_TX_DS);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_TX_DS);
+
+	/* example rx code: static payload */
+
+	ret = rf24_send(pnrf24, buf, pkt_len);
+
+	CHECK_EQUAL(RF24_TX_OK, ret);
+	mock().checkExpectations();
+}

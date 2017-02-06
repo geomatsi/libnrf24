@@ -527,3 +527,57 @@ enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 
 	return RF24_RX_OK;
 }
+
+enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len)
+{
+	uint8_t reg;
+
+	if (!buf)
+		return RF24_TX_EINVAL;
+
+	reg = rf24_read_register(r, FIFO_STATUS);
+	if (reg & FIFO_STATUS_TX_FULL)
+		return RF24_TX_FULL;
+
+	rf24_write_payload(r, buf, len);
+
+	reg = rf24_read_register(r, FIFO_STATUS);
+	if (reg & FIFO_STATUS_TX_EMPTY)
+		return RF24_TX_EIO;
+
+	/* From nRF24L01+ spec 6.1.5:
+	 * The TX mode is an active mode for transmitting packets. To enter this
+	 * mode, the nRF24L01+ must have PWR_UP bit set high, PRIM_RX bit set low,
+	 * a payload in the TX FIFO and a high pulse on the CE for more than 10 us.
+	 */
+	r->ce(1);
+	delay_us(20);
+	r->ce(0);
+
+	return RF24_TX_OK;
+
+}
+
+enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len)
+{
+	enum rf24_tx_status ret;
+	uint8_t status;
+
+	ret = rf24_send_async(r, buf, len);
+	if (ret != RF24_TX_OK)
+		return ret;
+
+	do {
+		status = rf24_get_status(r);
+	} while (!(status & (STATUS_TX_DS | STATUS_MAX_RT)));
+
+	/* clear TX_DS and/or MAX_RT bits */
+	rf24_write_register(r, STATUS, status & (STATUS_TX_DS | STATUS_MAX_RT));
+
+	/* TX failure: max retransmit count reached */
+	if (status & STATUS_MAX_RT)
+		return RF24_TX_MAX_RT;
+
+	return RF24_TX_OK;
+}
+

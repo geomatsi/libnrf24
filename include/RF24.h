@@ -67,6 +67,14 @@ enum rf24_rx_status {
 	RF24_RX_EINVAL,
 };
 
+enum rf24_tx_status {
+	RF24_TX_OK	= 0,
+	RF24_TX_EINVAL,
+	RF24_TX_FULL,
+	RF24_TX_MAX_RT,
+	RF24_TX_EIO,
+};
+
 void rf24_init(struct rf24 *r);
 void rf24_enable_dyn_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
@@ -111,5 +119,8 @@ void rf24_start_prx(struct rf24 *r);
 
 int rf24_rx_ready(struct rf24 *r, int *ppipe);
 enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len);
+
+enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len);
+enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len);
 
 #endif /* __NRF24_H__ */
