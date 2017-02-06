@@ -416,11 +416,10 @@ TEST(usecases, start_prx)
 
 /* Spec. 7.9.1 Figure 15: single transaction with ACK packets and IRQs */
 
-
 TEST(usecases, single_ack_transaction_fixed_payload_rx)
 {
-	void *buf = NULL;	/* fake buffer */
-	int pkt_len  = 20;	/* fixed packet size */
+	void *buf = (void *)0x1;	/* fake buffer */
+	int pkt_len  = 20;		/* fixed packet size */
 	int mock_pipe = 3;
 	int pipe;
 	enum rf24_rx_status ret;
@@ -473,7 +472,7 @@ TEST(usecases, single_ack_transaction_dynamic_payload_rx)
 {
 	uint8_t expected_pkt_len = 10;
 	uint8_t pkt_len;
-	void *buf = NULL;	/* fake buffer */
+	void *buf = (void *)0x1;	/* fake buffer */
 	int mock_pipe = 3;
 	int pipe;
 	enum rf24_rx_status ret;

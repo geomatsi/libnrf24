@@ -516,6 +516,9 @@ enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 {
 	uint8_t status;
 
+	if (!buf)
+		return RF24_RX_EINVAL;
+
 	status = rf24_read_payload(r, buf, len);
 
 	/* clear RX_DR bit */

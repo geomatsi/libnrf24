@@ -64,6 +64,7 @@ enum rf24_pa_level {
 
 enum rf24_rx_status {
 	RF24_RX_OK	= 0,
+	RF24_RX_EINVAL,
 };
 
 void rf24_init(struct rf24 *r);
