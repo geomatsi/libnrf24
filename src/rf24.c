@@ -512,7 +512,7 @@ int rf24_rx_ready(struct rf24 *r, int *ppipe)
 }
 
 /* FIXME: make sure that buf has enough space for dynamic payload */
-int rf24_recv(struct rf24 *r, void *buf, int len)
+enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 {
 	uint8_t status;
 
@@ -522,5 +522,5 @@ int rf24_recv(struct rf24 *r, void *buf, int len)
 	if (status & STATUS_RX_DR)
 		rf24_write_register(r, STATUS, STATUS_RX_DR);
 
-	return 0;
+	return RF24_RX_OK;
 }

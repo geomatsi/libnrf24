@@ -423,7 +423,7 @@ TEST(usecases, single_ack_transaction_fixed_payload_rx)
 	int pkt_len  = 20;	/* fixed packet size */
 	int mock_pipe = 3;
 	int pipe;
-	int ret;
+	enum rf24_rx_status ret;
 
 	/* mock sequence setup */
 
@@ -465,7 +465,7 @@ TEST(usecases, single_ack_transaction_fixed_payload_rx)
 	ret = rf24_recv(pnrf24, buf, pkt_len);
 
 	CHECK_EQUAL(mock_pipe, pipe);
-	CHECK_EQUAL(0, ret);
+	CHECK_EQUAL(RF24_RX_OK, ret);
 	mock().checkExpectations();
 }
 
@@ -476,7 +476,7 @@ TEST(usecases, single_ack_transaction_dynamic_payload_rx)
 	void *buf = NULL;	/* fake buffer */
 	int mock_pipe = 3;
 	int pipe;
-	int ret;
+	enum rf24_rx_status ret;
 
 	/* mock sequence setup */
 
@@ -524,7 +524,7 @@ TEST(usecases, single_ack_transaction_dynamic_payload_rx)
 
 	CHECK_EQUAL(expected_pkt_len, pkt_len);
 	CHECK_EQUAL(mock_pipe, pipe);
-	CHECK_EQUAL(0, ret);
+	CHECK_EQUAL(RF24_RX_OK, ret);
 
 	mock().checkExpectations();
 }

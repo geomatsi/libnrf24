@@ -62,6 +62,10 @@ enum rf24_pa_level {
 	RF24_PA_MAX	= 3,
 };
 
+enum rf24_rx_status {
+	RF24_RX_OK	= 0,
+};
+
 void rf24_init(struct rf24 *r);
 void rf24_enable_dyn_payload(struct rf24 *r);
 void rf24_set_payload_size(struct rf24 *r, int len);
@@ -105,6 +109,6 @@ void rf24_setup_prx(struct rf24 *r, int pipe, uint8_t *addr);
 void rf24_start_prx(struct rf24 *r);
 
 int rf24_rx_ready(struct rf24 *r, int *ppipe);
-int rf24_recv(struct rf24 *r, void *buf, int len);
+enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len);
 
 #endif /* __NRF24_H__ */
