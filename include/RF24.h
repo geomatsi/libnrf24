@@ -122,5 +122,6 @@ enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len);
 
 enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len);
 enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len);
+enum rf24_tx_status rf24_tx_done(struct rf24 *r);
 
 #endif /* __NRF24_H__ */

@@ -501,15 +501,16 @@ int rf24_rx_ready(struct rf24 *r, int *ppipe)
 	uint8_t rx_ready;
 	uint8_t status;
 
-	rx_ready = (rf24_read_register(r, FIFO_STATUS) & FIFO_STATUS_RX_EMPTY) ? 0 : 1;
+	status = rf24_get_status(r);
+	rx_ready = (status & STATUS_RX_DR) ? 1 : 0;
 
-	if (rx_ready && ppipe) {
-		status = rf24_get_status(r);
-		*ppipe = (status >> STATUS_RX_P_NO_SHIFT) & STATUS_RX_P_NO_MASK;
-	}
+	if (rx_ready && ppipe)
+		*ppipe = STATUS_RX_P_NO(status);
 
 	return rx_ready;
 }
+
+/* FIXME: add function to check data pipe number */
 
 /* FIXME: make sure that buf has enough space for dynamic payload */
 enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
@@ -518,6 +519,8 @@ enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 
 	if (!buf)
 		return RF24_RX_EINVAL;
+
+	/* FIXME: check FIFO_STATUS_RX_EMPTY in FIFO_STATUS */
 
 	status = rf24_read_payload(r, buf, len);
 
@@ -558,14 +561,9 @@ enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len)
 
 }
 
-enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len)
+enum rf24_tx_status rf24_tx_done(struct rf24 *r)
 {
-	enum rf24_tx_status ret;
 	uint8_t status;
-
-	ret = rf24_send_async(r, buf, len);
-	if (ret != RF24_TX_OK)
-		return ret;
 
 	do {
 		status = rf24_get_status(r);
@@ -581,3 +579,13 @@ enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len)
 	return RF24_TX_OK;
 }
 
+enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len)
+{
+	enum rf24_tx_status ret;
+
+	ret = rf24_send_async(r, buf, len);
+	if (ret != RF24_TX_OK)
+		return ret;
+
+	return rf24_tx_done(r);
+}
