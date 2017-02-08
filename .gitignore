@@ -3,6 +3,8 @@
 *.o
 tags
 
-run_tests
+cmds_tests
+core_tests
+
 libnrf24_*.a
 
