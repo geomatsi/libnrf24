@@ -586,3 +586,83 @@ TEST(usecases, single_ack_transaction_tx_max_retransmissions)
 	CHECK_EQUAL(RF24_TX_MAX_RT, ret);
 	mock().checkExpectations();
 }
+
+TEST(usecases, single_ack_transaction_rx_pipe_fifo_empty)
+{
+	int mock_pipe = RF24_MAX_PIPE + 2;	/* invalid pipe */
+	enum rf24_rx_status ret;
+	int pipe;
+
+	/* mock sequence setup */
+
+	for (int i = 0; i < 5; i++) {
+		mock()
+			.expectOneCall("rf24_write_cmd")
+			.withParameter("cmd", NOP)
+			.andReturnValue(0x0);
+	}
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(STATUS_RX_DR | (mock_pipe << STATUS_RX_P_NO_SHIFT));
+
+	/* example rx code */
+
+	while(!rf24_rx_ready(pnrf24, &pipe)) {
+		/* sleep some time before next rx check */
+	}
+
+	ret = rf24_rx_pipe_check(pnrf24, pipe);
+
+	CHECK_EQUAL(mock_pipe, pipe);
+	CHECK_EQUAL(RF24_RX_EMPTY, ret);
+	mock().checkExpectations();
+}
+
+TEST(usecases, single_ack_transaction_rx_fifo_empty)
+{
+	void *buf = (void *)0x1;	/* fake buffer */
+	int pkt_len  = 20;		/* fixed packet size */
+	int mock_pipe = 3;
+	int pipe;
+	enum rf24_rx_status ret;
+
+	/* mock sequence setup */
+
+	for (int i = 0; i < 5; i++) {
+		mock()
+			.expectOneCall("rf24_write_cmd")
+			.withParameter("cmd", NOP)
+			.andReturnValue(0x0);
+	}
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(STATUS_RX_DR | (mock_pipe << STATUS_RX_P_NO_SHIFT));
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(FIFO_STATUS_RX_EMPTY);
+
+	/* example rx code */
+
+	rf24_set_payload_size(pnrf24, pkt_len);
+
+	while(!rf24_rx_ready(pnrf24, &pipe)) {
+		/* sleep some time before next rx check */
+	}
+
+	ret = rf24_rx_pipe_check(pnrf24, pipe);
+
+	if (ret == RF24_RX_OK)
+		ret = rf24_recv(pnrf24, buf, pkt_len);
+
+	CHECK_EQUAL(mock_pipe, pipe);
+	CHECK_EQUAL(RF24_RX_EMPTY, ret);
+	mock().checkExpectations();
+}
+
+
