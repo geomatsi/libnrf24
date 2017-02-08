@@ -535,6 +535,7 @@ enum rf24_rx_status rf24_rx_pipe_check(struct rf24 *r, int pipe)
 /* FIXME: make sure that buf has enough space for dynamic payload */
 enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 {
+	uint8_t clear = 0x0;
 	uint8_t status;
 	uint8_t reg;
 
@@ -549,7 +550,14 @@ enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 
 	/* clear RX_DR bit */
 	if (status & STATUS_RX_DR)
-		rf24_write_register(r, STATUS, STATUS_RX_DR);
+		clear |= STATUS_RX_DR;
+
+	/* either prev ack payload tx ok or spurious irq */
+	if (status & STATUS_TX_DS)
+		clear |= STATUS_TX_DS;
+
+	if (clear)
+		rf24_write_register(r, STATUS, clear);
 
 	return RF24_RX_OK;
 }
@@ -598,6 +606,17 @@ enum rf24_tx_status rf24_tx_done(struct rf24 *r)
 	/* TX failure: max retransmit count reached */
 	if (status & STATUS_MAX_RT)
 		return RF24_TX_MAX_RT;
+
+	/* ack payload */
+	if (status & STATUS_RX_DR) {
+		if (rf24_is_ack_payload(r)) {
+			/* RX_DR bit will be acked in rf24_recv */
+			return RF24_TX_ACK_OK;
+		} else {
+			/* ack payload not enabled: spurious irq ? */
+			rf24_write_register(r, STATUS, status & STATUS_RX_DR);
+		}
+	}
 
 	return RF24_TX_OK;
 }

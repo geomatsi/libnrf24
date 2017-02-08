@@ -71,6 +71,7 @@ enum rf24_rx_status {
 
 enum rf24_tx_status {
 	RF24_TX_OK	= 0,
+	RF24_TX_ACK_OK,
 	RF24_TX_FULL,
 	RF24_TX_EINVAL,
 	RF24_TX_MAX_RT,

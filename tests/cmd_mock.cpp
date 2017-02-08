@@ -54,6 +54,15 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 	return mock().intReturnValue();
 }
 
+uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
+{
+	mock()
+		.actualCall("rf24_write_ack_payload")
+		.withParameter("pipe", pipe);
+
+	return mock().intReturnValue();
+}
+
 uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
 {
 	mock()

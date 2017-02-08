@@ -665,4 +665,108 @@ TEST(usecases, single_ack_transaction_rx_fifo_empty)
 	mock().checkExpectations();
 }
 
+/*
+ * nRF24L01/nRF24L01+ spec. 7.9.4
+ * Figure 18: single transaction with ACK payload packet
+ */
 
+/* sunny cases: full tx path */
+
+TEST(usecases, single_ack_payload_transaction_tx)
+{
+	void *rx_buf = (void *)0x1;	/* fake buffer */
+	void *tx_buf = (void *)0x2;	/* fake buffer */
+	enum rf24_tx_status tx_ret;
+	enum rf24_rx_status rx_ret;
+	int tx_len = 20;
+	int exp_rx_len = 5;
+	int rx_len;
+
+	/* mock sequence setup */
+
+	/* rf24_send */
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("rf24_write_payload")
+		.withParameter("len", tx_len);
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("ce")
+		.withParameter("level", 1);
+
+	mock()
+		.expectOneCall("delay_us")
+		.withParameter("usec", 20);
+
+	mock()
+		.expectOneCall("ce")
+		.withParameter("level", 0);
+
+	for (int i = 0; i < 4; i++) {
+		mock()
+			.expectOneCall("rf24_write_cmd")
+			.withParameter("cmd", NOP)
+			.andReturnValue(0x0);
+	}
+
+	mock()
+		.expectOneCall("rf24_write_cmd")
+		.withParameter("cmd", NOP)
+		.andReturnValue(STATUS_TX_DS | STATUS_RX_DR);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_TX_DS);
+
+	/* rf24_get_dyn_payload */
+
+	mock().setData("read", exp_rx_len);
+
+	mock()
+		.expectOneCall("rf24_read_cmd")
+		.withParameter("cmd", R_RX_PL_WID);
+
+	/* rf24_recv */
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
+		.expectOneCall("rf24_read_payload")
+		.withParameter("len", exp_rx_len)
+		.andReturnValue(STATUS_RX_DR);
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_RX_DR);
+
+	/* example tx code: skip async send check */
+
+	mock().disable();
+	rf24_enable_dyn_payload(pnrf24);
+	rf24_enable_ack_payload(pnrf24);
+	mock().enable();
+
+	tx_ret = rf24_send(pnrf24, tx_buf, tx_len);
+	CHECK_EQUAL(RF24_TX_ACK_OK, tx_ret);
+
+	rx_len = rf24_get_dyn_payload_size(pnrf24);
+
+	rx_ret = rf24_recv(pnrf24, rx_buf, rx_len);
+	CHECK_EQUAL(RF24_RX_OK, rx_ret);
+
+	mock().checkExpectations();
+}
