@@ -510,17 +510,29 @@ int rf24_rx_ready(struct rf24 *r, int *ppipe)
 	return rx_ready;
 }
 
-/* FIXME: add function to check data pipe number */
+enum rf24_rx_status rf24_rx_pipe_check(struct rf24 *r, int pipe)
+{
+	if ((pipe >= 0) && (pipe <= RF24_MAX_PIPE))
+		return RF24_RX_OK;
+
+	if (pipe == (RF24_MAX_PIPE + 2))
+		return RF24_RX_EMPTY;
+
+	return RF24_RX_EINVAL;
+}
 
 /* FIXME: make sure that buf has enough space for dynamic payload */
 enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len)
 {
 	uint8_t status;
+	uint8_t reg;
 
 	if (!buf)
 		return RF24_RX_EINVAL;
 
-	/* FIXME: check FIFO_STATUS_RX_EMPTY in FIFO_STATUS */
+	reg = rf24_read_register(r, FIFO_STATUS);
+	if (reg & FIFO_STATUS_RX_EMPTY)
+		return RF24_RX_EMPTY;
 
 	status = rf24_read_payload(r, buf, len);
 

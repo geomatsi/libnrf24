@@ -16,6 +16,7 @@
 #define RF24_MAX_PAYLOAD_SIZE	32
 #define RF24_MAX_CHANNEL	127
 #define RF24_MAX_ADDR_LEN	5
+#define RF24_MAX_PIPE		5
 
 #define RF24_TX_NOACK		BIT(2)
 #define RF24_DYN_PAYLOAD	BIT(3)
@@ -64,13 +65,14 @@ enum rf24_pa_level {
 
 enum rf24_rx_status {
 	RF24_RX_OK	= 0,
+	RF24_RX_EMPTY,
 	RF24_RX_EINVAL,
 };
 
 enum rf24_tx_status {
 	RF24_TX_OK	= 0,
-	RF24_TX_EINVAL,
 	RF24_TX_FULL,
+	RF24_TX_EINVAL,
 	RF24_TX_MAX_RT,
 	RF24_TX_EIO,
 };
@@ -118,6 +120,7 @@ void rf24_setup_prx(struct rf24 *r, int pipe, uint8_t *addr);
 void rf24_start_prx(struct rf24 *r);
 
 int rf24_rx_ready(struct rf24 *r, int *ppipe);
+enum rf24_rx_status rf24_rx_pipe_check(struct rf24 *r, int pipe);
 enum rf24_rx_status rf24_recv(struct rf24 *r, void *buf, int len);
 
 enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len);

@@ -444,6 +444,11 @@ TEST(usecases, single_ack_transaction_rx)
 		.andReturnValue(STATUS_RX_DR | (mock_pipe << STATUS_RX_P_NO_SHIFT));
 
 	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", FIFO_STATUS)
+		.andReturnValue(0x0);
+
+	mock()
 		.expectOneCall("rf24_read_payload")
 		.withParameter("len", pkt_len)
 		.andReturnValue(STATUS_RX_DR);
@@ -461,7 +466,10 @@ TEST(usecases, single_ack_transaction_rx)
 		/* sleep some time before next rx check */
 	}
 
-	ret = rf24_recv(pnrf24, buf, pkt_len);
+	ret = rf24_rx_pipe_check(pnrf24, pipe);
+
+	if (ret == RF24_RX_OK)
+		ret = rf24_recv(pnrf24, buf, pkt_len);
 
 	CHECK_EQUAL(mock_pipe, pipe);
 	CHECK_EQUAL(RF24_RX_OK, ret);
