@@ -36,6 +36,26 @@ TEST(core, init)
 	POINTERS_EQUAL(mock_ce, pnrf24->ce);
 }
 
+TEST(core, init_empty_methods)
+{
+	struct rf24 empty = {
+		0,
+		0,
+		0,
+		0,
+		0,
+		{0},
+		{0}
+	};
+
+	mock().disable();
+	rf24_init(&empty);
+
+	CHECK_FALSE(empty.csn == 0);
+	CHECK_FALSE(empty.ce == 0);
+	CHECK(empty.spi_xfer == 0);
+}
+
 TEST(core, fixed_payload)
 {
 	rf24_set_payload_size(pnrf24, -1);

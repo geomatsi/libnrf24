@@ -9,11 +9,22 @@
 
 static struct rf24 *nrf;
 
+static void no_pin(int level)
+{
+
+}
+
 void rf24_init(struct rf24 *r)
 {
 	int i;
 
 	nrf = r;
+
+	if (!nrf->csn)
+		nrf->csn = no_pin;
+
+	if (!nrf->ce)
+		nrf->ce = no_pin;
 
 	nrf->payload_size = RF24_MAX_PAYLOAD_SIZE;
 	nrf->flags = 0;
