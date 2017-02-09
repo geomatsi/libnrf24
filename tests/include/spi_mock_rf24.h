@@ -14,8 +14,6 @@ extern "C"
 #include "rf24log.h"
 }
 
-extern struct rf24 mock_rf24;
-
 extern void mock_csn(int level);
 extern void mock_ce(int level);
 extern uint8_t mock_spi_xfer_sbyte(uint8_t dat);

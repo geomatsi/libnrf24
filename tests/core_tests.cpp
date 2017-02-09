@@ -1,17 +1,25 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
+#include <cstring>
+
 #include <cmd_mock_rf24.h>
 
 TEST_GROUP(core)
 {
 	struct rf24 *pnrf24;
+	struct rf24 nrf24;
 
 	void setup()
 	{
 		mock().disable();
 
-		pnrf24 = &mock_rf24;
+		memset(&nrf24, 0x0, sizeof(nrf24));
+		nrf24.csn = mock_csn;
+		nrf24.ce = mock_ce;
+		nrf24.spi_xfer = mock_spi_xfer_sbyte;
+
+		pnrf24 = &nrf24;
 		rf24_init(pnrf24);
 
 		mock().enable();
@@ -29,7 +37,7 @@ TEST(core, init)
 {
 	mock().disable();
 
-	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, mock_rf24.payload_size);
+	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, pnrf24->payload_size);
 
 	POINTERS_EQUAL(mock_spi_xfer_sbyte, pnrf24->spi_xfer);
 	POINTERS_EQUAL(mock_csn, pnrf24->csn);
@@ -38,17 +46,10 @@ TEST(core, init)
 
 TEST(core, init_empty_methods)
 {
-	struct rf24 empty = {
-		0,
-		0,
-		0,
-		0,
-		0,
-		{0},
-		{0}
-	};
+	struct rf24 empty;
 
 	mock().disable();
+	memset(&empty, 0x0, sizeof(empty));
 	rf24_init(&empty);
 
 	CHECK_FALSE(empty.csn == 0);

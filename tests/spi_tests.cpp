@@ -8,12 +8,18 @@
 TEST_GROUP(rf24_cmds)
 {
 	struct rf24 *pnrf24;
+	struct rf24 nrf24;
 
 	void setup()
 	{
 		mock().disable();
 
-		pnrf24 = &mock_rf24;
+		memset(&nrf24, 0x0, sizeof(nrf24));
+		nrf24.csn = mock_csn;
+		nrf24.ce = mock_ce;
+		nrf24.spi_xfer = mock_spi_xfer_sbyte;
+
+		pnrf24 = &nrf24;
 		rf24_init(pnrf24);
 
 		mock().enable();

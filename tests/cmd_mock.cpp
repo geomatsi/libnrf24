@@ -107,19 +107,4 @@ void mock_ce(int level)
 uint8_t mock_spi_xfer_sbyte(uint8_t dat)
 {
 	return 0;
-}
-
-int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
-{
-	return 0;
-}
-
-struct rf24 mock_rf24 = {
-	mock_csn,
-	mock_ce,
-	mock_spi_xfer_sbyte,
-	0,
-	0,
-	{0},
-	{0}
 };

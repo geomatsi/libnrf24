@@ -1,17 +1,23 @@
 #include <CppUTest/TestHarness.h>
 #include "CppUTestExt/MockSupport.h"
 
+#include <cstring>
+
 #include <cmd_mock_rf24.h>
 
 TEST_GROUP(usecases)
 {
 	struct rf24 *pnrf24;
+	struct rf24 nrf24;
 
 	void setup()
 	{
 		mock().disable();
 
-		pnrf24 = &mock_rf24;
+		memset(&nrf24, 0x0, sizeof(nrf24));
+		nrf24.ce = mock_ce;
+
+		pnrf24 = &nrf24;
 		rf24_init(pnrf24);
 
 		mock().enable();
