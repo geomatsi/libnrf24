@@ -26,6 +26,7 @@ struct rf24 {
 	void    (*csn)(int level);
 	void    (*ce)(int level);
 	uint8_t (*spi_xfer)(uint8_t dat);
+	int     (*spi_multi_xfer)(uint8_t *tx, uint8_t *rx, int len);
 
 	uint8_t flags;
 	uint8_t payload_size;

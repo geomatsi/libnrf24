@@ -22,77 +22,42 @@ CXX = $(CROSS_COMPILE)g++
 
 #
 
-all: run_tests
+all: prod
 
 #
 
-PROD_HDR = include
-TEST_HDR = tests/include
+SRCS_DIR = src
+PROD_INC = include
+TEST_INC = tests/include
 
-CPPFLAGS += -I$(PROD_HDR) -I$(TEST_HDR)
+CPPFLAGS += -I$(PROD_INC) -I$(TEST_INC)
 CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
-
-# LIBRARY
-
-SRC_DIR = src
-
-OBJS = \
-	$(SRC_DIR)/rf24.o \
-	$(SRC_DIR)/rf24_cmds.o \
 
 ARFLAGS	= rcs
 
-$(LIBNAME)_$(TARGET).a: $(OBJS)
-	$(AR) $(ARFLAGS) "$@" $(OBJS)
+# LIBRARY
 
-prod: $(LIBNAME)_$(TARGET).a
+SB_OBJS = \
+	$(SRCS_DIR)/rf24.o \
+	$(SRCS_DIR)/rf24_sb_cmds.o \
 
-# TESTS
+$(LIBNAME)_$(TARGET).a: $(SB_OBJS)
+	$(AR) $(ARFLAGS) "$@" $(SB_OBJS)
 
-TEST_DIR = tests
+MB_OBJS = \
+	$(SRCS_DIR)/rf24.o \
+	$(SRCS_DIR)/rf24_mb_cmds.o \
 
-CPP_UTEST_LIBS = -lCppUTest -lCppUTestExt
+$(LIBNAME)_mb_$(TARGET).a: $(MB_OBJS)
+	$(AR) $(ARFLAGS) "$@" $(MB_OBJS)
 
-CMDS_TEST_OBJS = \
-	$(TEST_DIR)/main_test.o \
-	$(TEST_DIR)/spi_tests.o \
-	$(TEST_DIR)/spi_mock.o \
-	$(SRC_DIR)/rf24_cmds.o \
-	$(SRC_DIR)/rf24.o
-
-cmds_tests: $(CMDS_TEST_OBJS)
-	$(CXX) -o cmds_tests $(CMDS_TEST_OBJS) $(CPP_UTEST_LIBS)
-
-run_cmds_tests: cmds_tests
-	./cmds_tests -c
-
-CORE_TEST_OBJS = \
-	$(TEST_DIR)/main_test.o \
-	$(TEST_DIR)/core_tests.o \
-	$(TEST_DIR)/uc_tests.o \
-	$(TEST_DIR)/cmd_mock.o \
-	$(SRC_DIR)/rf24.o
-
-core_tests: $(CORE_TEST_OBJS)
-	$(CXX) -o core_tests $(CORE_TEST_OBJS) $(CPP_UTEST_LIBS)
-
-run_core_tests: core_tests
-	./core_tests -c
-
-
-run_tests: run_cmds_tests run_core_tests
+prod: $(LIBNAME)_$(TARGET).a $(LIBNAME)_mb_$(TARGET).a
 
 #
 
-clean: clean_prod clean_test
-
-clean_prod:
-	rm -f $(SRC_DIR)/*.o
+clean:
+	rm -f $(SRCS_DIR)/*.o
 	rm -f $(LIBNAME)_$(TARGET).a
-
-clean_test:
-	rm -f $(TEST_DIR)/*.o
-	rm -f cmds_tests
-	rm -f core_tests
+	rm -f $(LIBNAME)_mb_$(TARGET).a
 
 .PHONY: clean

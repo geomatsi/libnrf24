@@ -18,8 +18,8 @@ before_install:
 
 script:
 # build and run unit tests
-- make CROSS_COMPILE= TARGET=x86 run_tests
-- make CROSS_COMPILE= TARGET=x86 clean
+- make -f Makefile.utests run_tests
+- make -f Makefile.utests clean
 
 # build library
 - make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 prod

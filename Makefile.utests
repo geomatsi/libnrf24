@@ -1,0 +1,77 @@
+#
+# LIBNRF24 UTESTs
+#
+
+CC = $(CROSS_COMPILE)gcc
+AR = $(CROSS_COMPILE)ar
+CXX = $(CROSS_COMPILE)g++
+
+#
+
+all: run_tests
+
+#
+
+SRCS_DIR = src
+TEST_DIR = tests
+
+PROD_INC = include
+TEST_INC = tests/include
+
+CPPFLAGS += -I$(PROD_INC) -I$(TEST_INC)
+CPPFLAGS += -Wall
+
+# TESTS
+
+CPP_UTEST_LIBS = -lCppUTest -lCppUTestExt
+
+SPI_TEST_OBJS = \
+	$(TEST_DIR)/main_test.o \
+	$(TEST_DIR)/spi_tests.o \
+	$(TEST_DIR)/spi_mock.o \
+	$(SRCS_DIR)/rf24_sb_cmds.o \
+	$(SRCS_DIR)/rf24.o
+
+spi_tests: $(SPI_TEST_OBJS)
+	$(CXX) -o $@ $(SPI_TEST_OBJS) $(CPP_UTEST_LIBS)
+
+run_spi_tests: spi_tests
+	./$^ -c
+
+MSPI_TEST_OBJS = \
+	$(TEST_DIR)/main_test.o \
+	$(TEST_DIR)/spi_tests.o \
+	$(TEST_DIR)/mspi_mock.o \
+	$(SRCS_DIR)/rf24_mb_cmds.o \
+	$(SRCS_DIR)/rf24.o
+
+mspi_tests: $(MSPI_TEST_OBJS)
+	$(CXX) -o $@ $(MSPI_TEST_OBJS) $(CPP_UTEST_LIBS)
+
+run_mspi_tests: mspi_tests
+	./$^ -c
+
+CORE_TEST_OBJS = \
+	$(TEST_DIR)/main_test.o \
+	$(TEST_DIR)/core_tests.o \
+	$(TEST_DIR)/uc_tests.o \
+	$(TEST_DIR)/cmd_mock.o \
+	$(SRCS_DIR)/rf24.o
+
+core_tests: $(CORE_TEST_OBJS)
+	$(CXX) -o $@ $(CORE_TEST_OBJS) $(CPP_UTEST_LIBS)
+
+run_core_tests: core_tests
+	./$^ -c
+
+run_tests: run_spi_tests run_mspi_tests run_core_tests
+
+#
+
+clean:
+	rm -f $(TEST_DIR)/*.o
+	rm -f core_tests
+	rm -f mspi_tests
+	rm -f spi_tests
+
+.PHONY: clean

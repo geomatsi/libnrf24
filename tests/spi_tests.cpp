@@ -18,6 +18,7 @@ TEST_GROUP(rf24_cmds)
 		nrf24.csn = mock_csn;
 		nrf24.ce = mock_ce;
 		nrf24.spi_xfer = mock_spi_xfer_sbyte;
+		nrf24.spi_multi_xfer = mock_spi_xfer_mbyte;
 
 		pnrf24 = &nrf24;
 		rf24_init(pnrf24);
