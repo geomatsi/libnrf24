@@ -8,10 +8,8 @@ extern "C"
 
 #include "rf24_cmds.h"
 #include "rf24_std.h"
-
-#include "rf24delay.h"
-#include "rf24delay.h"
-#include "rf24log.h"
+#include "rf24_delay.h"
+#include "rf24_log.h"
 }
 
 extern uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len);

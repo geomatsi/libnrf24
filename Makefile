@@ -61,3 +61,4 @@ clean:
 	rm -f $(LIBNAME)_mb_$(TARGET).a
 
 .PHONY: clean
+.PHONY: prod

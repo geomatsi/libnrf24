@@ -3,10 +3,6 @@
 
 #include <stdint.h>
 
-#define EAGAIN	11
-#define ENODEV	19
-#define EIO	5
-
 #define BIT(x)	(1 << (x))
 #define BIN(x)	(0b##x)
 

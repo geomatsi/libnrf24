@@ -76,3 +76,4 @@ clean:
 	rm -f spi_tests
 
 .PHONY: clean
+.PHONY: run_tests

@@ -8,10 +8,8 @@ extern "C"
 
 #include "rf24_cmds.h"
 #include "rf24_std.h"
-
-#include "rf24delay.h"
-#include "rf24delay.h"
-#include "rf24log.h"
+#include "rf24_delay.h"
+#include "rf24_log.h"
 }
 
 extern void mock_csn(int level);
