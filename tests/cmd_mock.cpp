@@ -63,7 +63,7 @@ uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int le
 	return mock().intReturnValue();
 }
 
-uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
+uint8_t rf24_read_payload(struct rf24 *r, void *buf, int len)
 {
 	mock()
 		.actualCall("rf24_read_payload")

@@ -29,7 +29,14 @@ uint8_t mock_spi_xfer_sbyte(uint8_t dat)
 	return mock().intReturnValue();
 }
 
+/* mock mbyte spi xfer using sbyte xfers to reuse spi_tests */
 int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
 {
+	int pos;
+
+	for(pos = 0; pos < len; pos++) {
+		*(rx + pos) = mock_spi_xfer_sbyte(*(tx + pos));
+	}
+
 	return 0;
 }

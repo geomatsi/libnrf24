@@ -99,7 +99,7 @@ uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int le
 	return status;
 }
 
-uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
+uint8_t rf24_read_payload(struct rf24 *r, void *buf, int len)
 {
 	uint8_t *curr = (uint8_t*) buf;
 	uint8_t dat_len;

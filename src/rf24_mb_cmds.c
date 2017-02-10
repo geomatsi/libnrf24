@@ -1,33 +1,34 @@
+#include <string.h>
+
 #include <rf24_cmds.h>
 
-uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
+static uint8_t rx[RF24_MAX_PAYLOAD_SIZE + 1];
+static uint8_t tx[RF24_MAX_PAYLOAD_SIZE + 1];
+
+uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
-	uint8_t status;
-	int i;
+	memcpy(&tx[1], buf, len);
+	tx[0] = cmd;
 
 	r->csn(0);
-	status = r->spi_xfer(cmd);
-
-	for(i = 0; i < len; i++)
-		r->spi_xfer(buf[i]);
-
+	r->spi_multi_xfer(tx, rx, len + 1);
 	r->csn(1);
-	return status;
+
+	return rx[0];
 }
 
-uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len)
+uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
-	uint8_t status;
-	int i;
+	memset(tx, 0xff, sizeof(tx));
+	tx[0] = cmd;
 
 	r->csn(0);
-	status = r->spi_xfer(cmd);
-
-	for(i = 0; i < len; i++)
-		buf[i] = r->spi_xfer(0xff);
-
+	r->spi_multi_xfer(tx, rx, len + 1);
 	r->csn(1);
-	return status;
+
+	memcpy(buf, &rx[1], len);
+
+	return rx[0];
 }
 
 uint8_t rf24_read_register(struct rf24 *r, uint8_t reg)
@@ -50,96 +51,80 @@ uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t val)
 
 uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 {
-	const uint8_t *curr = (uint8_t *)buf;
 	uint8_t dat_len;
 	uint8_t pad_len;
-	uint8_t status;
 
 	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
 	pad_len = rf24_is_dyn_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
 
-	r->csn(0);
+	memset(tx, 0x0, sizeof(tx));
+	memcpy(&tx[1], buf, dat_len);
 
 	if (rf24_is_tx_noack(r))
-		status = r->spi_xfer(W_TX_PAYLOAD_NOACK);
+		tx[0] = W_TX_PAYLOAD_NOACK;
 	else
-		status = r->spi_xfer(W_TX_PAYLOAD);
+		tx[0] = W_TX_PAYLOAD;
 
-	while (dat_len--)
-		r->spi_xfer(*curr++);
-
-	while (pad_len--)
-		r->spi_xfer(0x0);
-
+	r->csn(0);
+	r->spi_multi_xfer(tx, rx, dat_len + pad_len + 1);
 	r->csn(1);
 
-	return status;
+	return rx[0];
 }
 
 uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
 {
-	const uint8_t *curr = (uint8_t *)buf;
-	uint8_t data_len;
-	uint8_t status;
+	uint8_t dat_len;
 
 	/* invalid pipe number: do nothing */
 	if ((pipe < 0) || (pipe > 5))
 		return 0xFF;
 
-	data_len = min_t(uint8_t, len, rf24_payload_size(r));
+	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
+
+	memcpy(&tx[1], buf, dat_len);
+	tx[0] = W_ACK_PAYLOAD | (pipe & ACK_PAYLOAD_MASK);
 
 	r->csn(0);
-
-	status = r->spi_xfer(W_ACK_PAYLOAD | (pipe & ACK_PAYLOAD_MASK));
-	while (data_len--)
-		r->spi_xfer(*curr++);
-
+	r->spi_multi_xfer(tx, rx, dat_len + 1);
 	r->csn(1);
 
-	return status;
+	return rx[0];
 }
 
-uint8_t rf24_read_payload(struct rf24 *r, const void *buf, int len)
+uint8_t rf24_read_payload(struct rf24 *r, void *buf, int len)
 {
-	uint8_t *curr = (uint8_t*) buf;
 	uint8_t dat_len;
 	uint8_t pad_len;
-	uint8_t status;
 
 	dat_len = min_t(uint8_t, len, rf24_payload_size(r));
 	pad_len = rf24_is_dyn_payload(r) ? 0 : (rf24_payload_size(r) - dat_len);
 
+	memset(tx, 0xff, sizeof(tx));
+	tx[0] = R_RX_PAYLOAD;
+
 	r->csn(0);
-
-	status = r->spi_xfer(R_RX_PAYLOAD);
-
-	while (dat_len--)
-		*curr++ = r->spi_xfer(0xff);
-
-	/* NB: output buffer length is smaller than configured fixed payload,
-	 * but we have to read all the FIFO content to avoid corruption
-	 */
-	while (pad_len--)
-		r->spi_xfer(0xff);
-
+	r->spi_multi_xfer(tx, rx, dat_len + pad_len + 1);
 	r->csn(1);
 
-	return status;
+	memcpy(buf, &rx[1], dat_len);
+
+	return rx[0];
 }
 
 uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len)
 {
 	const uint8_t *addr = &buf[len];
-	uint8_t status;
+	int pos;
+
+	tx[0] = W_REGISTER | (REGISTER_MASK & reg);
+
+	for (pos = 0; pos < len; pos++)
+		tx[pos + 1] = *(--addr);
 
 	r->csn(0);
-
-	status = r->spi_xfer(W_REGISTER | (REGISTER_MASK & reg));
-
-	while (len--)
-		r->spi_xfer(*(--addr));
-
+	r->spi_multi_xfer(tx, rx, len + 1);
 	r->csn(1);
 
-	return status;
+	return rx[0];
 }

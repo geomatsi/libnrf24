@@ -70,6 +70,7 @@ run_tests: run_spi_tests run_mspi_tests run_core_tests
 
 clean:
 	rm -f $(TEST_DIR)/*.o
+	rm -f $(SRCS_DIR)/*.o
 	rm -f core_tests
 	rm -f mspi_tests
 	rm -f spi_tests
