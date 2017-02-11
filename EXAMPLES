@@ -1,0 +1,250 @@
+==== Automatic ACK packets w/o payload: both static and dynamic packet length
+
+== PRX example code
+
+int main(void)
+{
+	struct rf24 nrf = { /* spi/csn/ce function pointers */ };
+	struct rf24 pnrf = &nrf;
+
+        uint8_t addr0[] = {'E', 'F', 'C', 'L', 'I'};
+        uint8_t addr1[] = {'E', 'F', 'S', 'N', '1'};
+
+	enum rf24_rx_status ret;
+	uint8_t recv_buf[32];
+	int recv_len = 20;	/* fixed length payload */
+	int pipe;
+
+
+	rf24_init(pnrf);
+	rf24_print_status(pnrf);
+
+#if	/* use this for fixed payload */
+	rf24_set_payload_size(pnrf, recv_len);
+#else	/* or use this for dynamic payload */
+	rf24_enable_dyn_payload(pnrf);
+#endif
+
+	rf24_setup_prx(pnrf, 0x0 /* pipe number */, addr0);
+	rf24_setup_prx(pnrf, 0x1 /* pipe number */, addr1);
+
+	rf24_start_prx(pnrf);
+
+	while (1) {
+
+		while(!rf24_rx_ready(pnrf, &pipe) {
+			/* sleep for some time */
+		}
+
+		ret = rf24_rx_pipe_check(pnrf, pipe);
+
+                if (ret != RF24_RX_OK) {
+                        printf("WARN: pipe check error 0x%02x\n", (int)pipe);
+                        rf24_flush_rx(pnrf);
+                        continue;
+                }
+
+                printf("INFO: data ready in pipe 0x%02x\n", pipe);
+                memset(recv_buf, 0x0, sizeof(recv_buf));
+
+#if 		/* use this for fixed payload */
+		recv_len = (int)rf24_get_dyn_payload_size(pnrf);
+		if (recv_len == 0xff) {
+			printf("WARN: failed to get dynamic payload length\n");
+			rf24_flush_rx(pnrf);
+			continue;
+		}
+#endif
+
+                ret = rf24_recv(pnrf, recv_buf, recv_len);
+                if (ret != RF24_RX_OK) {
+                        printf("WARN: failed to receive rx data: 0x%02x\n", ret);
+                        rf24_flush_rx(pnrf);
+                        continue;
+                }
+
+		/* do something with received data in recv_buf */
+	}
+}
+
+== PTX code
+
+int main(void)
+{
+	struct rf24 nrf = { /* spi/csn/ce function pointers */ };
+	struct rf24 pnrf = &nrf;
+
+	uint8_t addr[] = {'E', 'F', 'C', 'L', 'I'};
+
+	enum rf24_tx_status ret;
+	uint8_t tx_buf[32];
+	int tx_len = 20;	/* fixed length payload */
+
+	rf24_init(pnrf);
+
+#if	/* use this for fixed payload */
+	rf24_set_payload_size(pnrf, tx_len);
+#else	/* or use this for dynamic payload */
+	rf24_enable_dyn_payload(pnrf);
+#endif
+
+	rf24_setup_ptx(nrf, addr);
+	rf24_start_ptx(nrf);
+
+	while (1) {
+
+		memset(tx_buf, 0x0, sizeof(buf));
+
+		/* prepare payload in tx_buf: for dynamic payload set tx_len */
+
+		ret = rf24_send(nrf, tx_buf, tx_len);
+		if (ret != RF24_TX_OK) {
+			printf("send error: %d\n", ret);
+			rf24_flush_tx(nrf);
+			rf24_flush_rx(nrf);
+			/* xmit failed and nRF24 cleanup completed: do whatever is needed */
+		} else {
+			/* xmit ok: do whatever is needed */
+		}
+	}
+
+	return 0;
+}
+
+==== Automatic ACK packets with payload
+
+== PRX example code
+
+int main(void)
+{
+	struct rf24 nrf = { /* spi/csn/ce function pointers */ };
+	struct rf24 pnrf = &nrf;
+
+        uint8_t addr0[] = {'E', 'F', 'C', 'L', 'I'};
+        uint8_t addr1[] = {'E', 'F', 'S', 'N', '1'};
+
+	enum rf24_rx_status ret;
+	uint8_t recv_buf[32];
+	int recv_len;
+	int pipe;
+
+	uint8_t ack_payload0[10];
+	int ack_len0;
+
+	uint8_t ack_payload1[10];
+	int ack_len1;
+
+	rf24_init(pnrf);
+	rf24_print_status(pnrf);
+
+	rf24_enable_dyn_payload(pnrf);
+	rf24_enable_ack_payload(pnrf);
+
+	rf24_setup_prx(pnrf, 0x0 /* pipe number */, addr0);
+	rf24_setup_prx(pnrf, 0x1 /* pipe number */, addr1);
+
+	rf24_start_prx(pnrf);
+
+	while (1) {
+
+		/* prepare ack payloads: ack_payloadX and ack_lenX for pipeX */
+
+		/* Note
+		 * This is a simple example: all the ack payloads are updated on
+		 * each received packet. It is possible to update only payload
+		 * for the pipe which got packet: e.g. do it after rf24_rx_ready
+		 * has reported pipe.
+		 */
+
+                rf24_prepare_ack_payload(pnrf, 0, ack_payload0, ack_len0);
+                rf24_prepare_ack_payload(pnrf, 1, ack_payload1, ack_len1);
+
+		while(!rf24_rx_ready(pnrf, &pipe) {
+			/* sleep for some time */
+		}
+
+		ret = rf24_rx_pipe_check(pnrf, pipe);
+
+                if (ret != RF24_RX_OK) {
+                        printf("WARN: pipe check error 0x%02x\n", (int)pipe);
+                        rf24_flush_rx(pnrf);
+                        continue;
+                }
+
+                printf("INFO: data ready in pipe 0x%02x\n", pipe);
+                memset(recv_buf, 0x0, sizeof(recv_buf));
+
+#if 		/* use this for fixed payload */
+		recv_len = (int)rf24_get_dyn_payload_size(pnrf);
+		if (recv_len == 0xff) {
+			printf("WARN: failed to get dynamic payload length\n");
+			rf24_flush_rx(pnrf);
+			continue;
+		}
+#endif
+
+                ret = rf24_recv(pnrf, recv_buf, recv_len);
+                if (ret != RF24_RX_OK) {
+                        printf("WARN: failed to receive rx data: 0x%02x\n", ret);
+                        rf24_flush_rx(pnrf);
+                        continue;
+                }
+
+		/* do something with received data in recv_buf */
+	}
+}
+
+== PTX code
+
+int main(void)
+{
+	struct rf24 nrf = { /* spi/csn/ce function pointers */ };
+	struct rf24 pnrf = &nrf;
+
+	uint8_t addr[] = {'E', 'F', 'C', 'L', 'I'};
+
+	enum rf24_tx_status ret;
+	uint8_t tx_buf[32];
+	int tx_len;
+
+	enum rf24_rx_status rx_ret;
+	uint8_t rx_buf[32];
+	int rx_len;
+
+	rf24_init(pnrf);
+
+	rf24_enable_dyn_payload(pnrf);
+	rf24_enable_ack_payload(pnrf);
+
+	rf24_setup_ptx(nrf, addr);
+	rf24_start_ptx(nrf);
+
+	while (1) {
+
+		/* prepare payload: fill tx_buf and tx_len */
+
+		ret = rf24_send(nrf, tx_buf, tx_len);
+		if (ret == RF24_TX_ACK_OK) {
+			/* xmit ok, ack payload received: get length and read ack payload */
+			memset(rx_buf, 0x0, sizeof(rx_buf));
+			rx_len = rf24_get_dyn_payload_size(nrf);
+			rx_ret = rf24_recv(nrf, rx_buf, rx_len);
+			if (rx_ret == RF24_RX_OK) {
+				/* ack payload is in rx_buf: do whatever is needed */
+			} else {
+				rf24_flush_tx(nrf);
+				rf24_flush_rx(nrf);
+				/* read ack payload failed and nRF24 cleanup completed */
+			}
+
+		} else if (ret == RF24_TX_OK) {
+			/* xmit ok, no ack payload: do whatever is needed */
+		} else {
+			rf24_flush_tx(nrf);
+			rf24_flush_rx(nrf);
+			/* xmit failed and nRF24 cleanup completed: do whatever is needed */
+		}
+	}
+
+	return 0;
+}
