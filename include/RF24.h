@@ -110,7 +110,10 @@ enum rf24_pa_level rf24_get_pa_level(struct rf24 *r);
 
 void rf24_enable_tx_noack(struct rf24 *r);
 void rf24_disable_tx_noack(struct rf24 *r);
+
 void rf24_enable_ack_payload(struct rf24 *r);
+uint8_t rf24_prepare_ack_payload(struct rf24 *r, int pipe, const void *buf, int len);
+
 void rf24_set_auto_ack_all(struct rf24 *r, int enable);
 void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable);
 

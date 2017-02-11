@@ -379,6 +379,11 @@ void rf24_enable_ack_payload(struct rf24 *r)
 	r->flags |= RF24_ACK_PAYLOAD;
 }
 
+uint8_t rf24_prepare_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
+{
+	return rf24_write_ack_payload(r, pipe, buf, len);
+}
+
 void rf24_set_auto_ack_all(struct rf24 *r, int enable)
 {
 	if (enable)
