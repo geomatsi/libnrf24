@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#define BIT(x)	(1 << (x))
 #define BIN(x)	(0b##x)
 
 #define min_t(type, x, y) ({	\

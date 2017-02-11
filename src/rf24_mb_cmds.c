@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include <rf24_cmds.h>
+#include <rf24_std.h>
 
 static uint8_t rx[RF24_MAX_PAYLOAD_SIZE + 1];
 static uint8_t tx[RF24_MAX_PAYLOAD_SIZE + 1];

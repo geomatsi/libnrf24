@@ -11,16 +11,16 @@
 #ifndef __NRF24_H__
 #define __NRF24_H__
 
-#include <rf24_std.h>
+#include <stdint.h>
 
 #define RF24_MAX_PAYLOAD_SIZE	32
 #define RF24_MAX_CHANNEL	127
 #define RF24_MAX_ADDR_LEN	5
 #define RF24_MAX_PIPE		5
 
-#define RF24_TX_NOACK		BIT(2)
-#define RF24_DYN_PAYLOAD	BIT(3)
-#define RF24_ACK_PAYLOAD	BIT(4)
+#define RF24_TX_NOACK		(0x1 << 2)
+#define RF24_DYN_PAYLOAD	(0x1 << 3)
+#define RF24_ACK_PAYLOAD	(0x1 << 4)
 
 struct rf24 {
 	void    (*csn)(int level);
