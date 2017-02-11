@@ -441,7 +441,7 @@ void rf24_start_ptx(struct rf24 *r)
 	 * it is possible that they could have been changed
 	 * during switching between PTX and PRX.
 	 */
-	rf24_write_address(r, RX_ADDR_P0, r->p0_rx_addr, RF24_MAX_ADDR_LEN);
+	rf24_write_address(r, RX_ADDR_P0, r->p0_tx_addr, RF24_MAX_ADDR_LEN);
 	rf24_write_address(r, TX_ADDR, r->p0_tx_addr, RF24_MAX_ADDR_LEN);
 
 	rf24_power_up(r);
