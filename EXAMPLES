@@ -47,7 +47,7 @@ int main(void)
                 printf("INFO: data ready in pipe 0x%02x\n", pipe);
                 memset(recv_buf, 0x0, sizeof(recv_buf));
 
-#if 		/* use this for fixed payload */
+#if 		/* use this for dynamic payload */
 		recv_len = (int)rf24_get_dyn_payload_size(pnrf);
 		if (recv_len == 0xff) {
 			printf("WARN: failed to get dynamic payload length\n");
@@ -174,14 +174,12 @@ int main(void)
                 printf("INFO: data ready in pipe 0x%02x\n", pipe);
                 memset(recv_buf, 0x0, sizeof(recv_buf));
 
-#if 		/* use this for fixed payload */
 		recv_len = (int)rf24_get_dyn_payload_size(pnrf);
 		if (recv_len == 0xff) {
 			printf("WARN: failed to get dynamic payload length\n");
 			rf24_flush_rx(pnrf);
 			continue;
 		}
-#endif
 
                 ret = rf24_recv(pnrf, recv_buf, recv_len);
                 if (ret != RF24_RX_OK) {
