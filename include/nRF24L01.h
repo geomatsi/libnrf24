@@ -164,11 +164,11 @@
 
 #define OBS_TX_PLOS_CNT_SHIFT	4
 #define OBS_TX_PLOS_CNT_MASK	0xf
-#define OBS_TX_PLOS_CNT_VAL(x)	((x) << OBS_TX_PLOS_CNT_SHIFT)
+#define OBS_TX_PLOS_CNT(x)	(((x) >> OBS_TX_PLOS_CNT_SHIFT) & OBS_TX_PLOS_CNT_MASK)
 
 #define OBS_TX_ARC_CNT_SHIFT	0
 #define OBS_TX_ARC_CNT_MASK	0xf
-#define OBS_TX_ARC_CNT_VAL(x)	((x) << OBS_TX_ARC_CNT_SHIFT)
+#define OBS_TX_ARC_CNT(x)	(((x) >> OBS_TX_ARC_CNT_SHIFT) & OBS_TX_ARC_CNT_MASK)
 
 #define RPD_RPD			(1 << 0)
 

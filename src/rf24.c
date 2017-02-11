@@ -631,12 +631,24 @@ enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len)
 	return rf24_tx_done(r);
 }
 
-void rf24_print_status(uint8_t status)
+void rf24_print_status(struct rf24 *r)
 {
-	rf24_info("STATUS[0x%02x]: RX_DR=%x TX_DS=%x MAX_RT=%x TX_FULL=%x RX_P_NO=%x\n", status,
-		(status & STATUS_RX_DR) ? 1 : 0,
-		(status & STATUS_TX_DS) ? 1 : 0,
-		(status & STATUS_MAX_RT) ? 1 : 0,
-		(status & STATUS_TX_FULL) ? 1 : 0,
-		STATUS_RX_P_NO(status));
+	uint8_t status;
+
+	status = rf24_get_status(r);
+	rf24_info("STATUS[0x%02x]: RX_DR=%d TX_DS=%d MAX_RT=%d TX_FULL=%d RX_P_NO=%d\n", status,
+		  (status & STATUS_RX_DR)   ? 1 : 0,
+		  (status & STATUS_TX_DS)   ? 1 : 0,
+		  (status & STATUS_MAX_RT)  ? 1 : 0,
+		  (status & STATUS_TX_FULL) ? 1 : 0,
+		  STATUS_RX_P_NO(status));
+}
+
+void rf24_print_observe_tx(struct rf24 *r)
+{
+	uint8_t val;
+
+	val = rf24_read_register(r, OBSERVE_TX);
+	rf24_info("OBSERVE_TX[0x%02x]: PLOS_CNT=%d ARC_CNT=%d\n",
+		  val, OBS_TX_PLOS_CNT(val), OBS_TX_ARC_CNT(val));
 }
