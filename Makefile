@@ -53,6 +53,22 @@ $(LIBNAME)_mb_$(TARGET).a: $(MB_OBJS)
 
 prod: $(LIBNAME)_$(TARGET).a $(LIBNAME)_mb_$(TARGET).a
 
+PREFIX ?= /usr/local
+
+install: prod
+	mkdir -p $(DESTDIR)$(PREFIX)/lib
+	mkdir -p $(DESTDIR)$(PREFIX)/include
+	cp $(LIBNAME)_$(TARGET).a $(DESTDIR)$(PREFIX)/lib/$(LIBNAME).a
+	cp $(LIBNAME)_mb_$(TARGET).a $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)_mb.a
+	cp $(PROD_INC)/nRF24L01.h $(DESTDIR)$(PREFIX)/include/
+	cp $(PROD_INC)/RF24.h $(DESTDIR)$(PREFIX)/include/
+
+uninstall:
+	rm -rf $(DESTDIR)$(PREFIX)/lib/$(LIBNAME).a
+	rm -rf $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)_mb.a
+	rm -rf $(DESTDIR)$(PREFIX)/include/nRF24L01.h
+	rm -rf $(DESTDIR)$(PREFIX)/include/RF24.h
+
 #
 
 clean:
@@ -60,5 +76,7 @@ clean:
 	rm -f $(LIBNAME)_$(TARGET).a
 	rm -f $(LIBNAME)_mb_$(TARGET).a
 
+.PHONY: uninstall
+.PHONY: install
 .PHONY: clean
 .PHONY: prod
