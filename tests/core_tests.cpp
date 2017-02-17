@@ -210,6 +210,44 @@ TEST(core, rf24_set_channel_invalid)
 	mock().checkExpectations();
 }
 
+TEST(core, rf24_get_channel_ok)
+{
+	uint8_t ech;
+	uint8_t ach;
+
+	for (ech = 0; ech <= RF24_MAX_CHANNEL; ech++) {
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_CH)
+			.andReturnValue(ech);
+
+		ach = rf24_get_channel(pnrf24);
+
+		CHECK_EQUAL(ech, ach);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}
+
+TEST(core, rf24_get_channel_fail)
+{
+	uint8_t ech;
+	uint8_t ach;
+
+	for (ech = RF24_MAX_CHANNEL + 1; ech != 0; ech++) {
+		mock()
+			.expectOneCall("rf24_read_register")
+			.withParameter("reg", RF_CH)
+			.andReturnValue(ech);
+
+		ach = rf24_get_channel(pnrf24);
+
+		CHECK_EQUAL(0xff, ach);
+		mock().checkExpectations();
+		mock().clear();
+	}
+}
+
 TEST(core, rf24_set_crc_mode_none)
 {
 	uint8_t config = 0xFF;

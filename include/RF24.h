@@ -91,6 +91,8 @@ uint8_t rf24_flush_rx(struct rf24 *r);
 uint8_t rf24_flush_tx(struct rf24 *r);
 
 void rf24_set_channel(struct rf24 *r, uint8_t channel);
+uint8_t rf24_get_channel(struct rf24 *r);
+
 void rf24_set_retries(struct rf24 *r, uint8_t ard, uint8_t arc);
 
 void rf24_set_crc_mode(struct rf24 *r, enum rf24_crc_mode mode);

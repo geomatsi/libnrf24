@@ -132,6 +132,18 @@ void rf24_set_channel(struct rf24 *r, uint8_t channel)
 	rf24_write_register(r, RF_CH, channel);
 }
 
+uint8_t rf24_get_channel(struct rf24 *r)
+{
+	uint8_t reg;
+
+	reg = rf24_read_register(r, RF_CH);
+
+	if (reg > RF24_MAX_CHANNEL)
+		return 0xff;
+
+	return reg;
+}
+
 void rf24_set_crc_mode(struct rf24 *r, enum rf24_crc_mode mode)
 {
 	uint8_t reg;
