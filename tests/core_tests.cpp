@@ -132,6 +132,11 @@ TEST(core, rf24_fluxh_rx)
 	int actual_status;
 
 	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_RX_DR);
+
+	mock()
 		.expectOneCall("rf24_write_cmd")
 		.withParameter("cmd", FLUSH_RX)
 		.andReturnValue(expected_status);
@@ -146,6 +151,11 @@ TEST(core, rf24_fluxh_tx)
 {
 	int expected_status = 0xe;
 	int actual_status;
+
+	mock()
+		.expectOneCall("rf24_write_register")
+		.withParameter("reg", STATUS)
+		.withParameter("val", STATUS_TX_DS | STATUS_MAX_RT);
 
 	mock()
 		.expectOneCall("rf24_write_cmd")

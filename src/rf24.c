@@ -113,11 +113,13 @@ uint8_t rf24_get_status(struct rf24 *r)
 
 uint8_t rf24_flush_rx(struct rf24 *r)
 {
+	rf24_write_register(r, STATUS, STATUS_RX_DR);
 	return rf24_write_cmd(r, FLUSH_RX, 0, 0);
 }
 
 uint8_t rf24_flush_tx(struct rf24 *r)
 {
+	rf24_write_register(r, STATUS, STATUS_TX_DS | STATUS_MAX_RT);
 	return rf24_write_cmd(r, FLUSH_TX, 0, 0);
 }
 
