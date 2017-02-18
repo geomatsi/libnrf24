@@ -891,3 +891,19 @@ TEST(core, get_carrier)
 
 	mock().checkExpectations();
 }
+
+TEST(core, get_register)
+{
+	int expected_value = 0xa;
+	int actual_value;
+
+	mock()
+		.expectOneCall("rf24_read_register")
+		.withParameter("reg", STATUS)
+		.andReturnValue(expected_value);
+
+	actual_value = rf24_get_register(pnrf24, STATUS);
+	CHECK_EQUAL(expected_value, actual_value);
+
+	mock().checkExpectations();
+}

@@ -119,7 +119,6 @@ uint8_t rf24_prepare_ack_payload(struct rf24 *r, int pipe, const void *buf, int 
 void rf24_set_auto_ack_all(struct rf24 *r, int enable);
 void rf24_set_auto_ack_pipe(struct rf24 *r, int pipe, int enable);
 
-
 void rf24_setup_ptx(struct rf24 *r, uint8_t *addr);
 void rf24_start_ptx(struct rf24 *r);
 
@@ -134,6 +133,7 @@ enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len);
 enum rf24_tx_status rf24_send(struct rf24 *r, void *buf, int len);
 enum rf24_tx_status rf24_tx_done(struct rf24 *r);
 
+uint8_t rf24_get_register(struct rf24 *r, uint8_t reg);
 void rf24_print_status(struct rf24 *r);
 void rf24_print_observe_tx(struct rf24 *r);
 

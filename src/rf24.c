@@ -427,6 +427,11 @@ uint8_t rf24_get_carrier(struct rf24 *r)
 	return rf24_read_register(r, RPD);
 }
 
+uint8_t rf24_get_register(struct rf24 *r, uint8_t reg)
+{
+	return rf24_read_register(r, reg);
+}
+
 void rf24_setup_ptx(struct rf24 *r, uint8_t *addr)
 {
 	int i;
