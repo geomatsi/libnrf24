@@ -300,7 +300,7 @@ enum rf24_data_rate rf24_get_data_rate(struct rf24 *r)
 	if (reg == RF_SETUP_RF_DR_LOW)
 		return RF24_RATE_250K;
 
-	return RESERVED;
+	return RF24_RATE_RES;
 }
 
 void rf24_set_pa_level(struct rf24 *r, enum rf24_pa_level level)

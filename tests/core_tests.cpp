@@ -619,7 +619,7 @@ TEST(core, rf24_set_data_rate_valid)
 TEST(core, rf24_set_data_rate_invalid)
 {
 	/* invalid rate */
-	enum rf24_data_rate rate = RESERVED;
+	enum rf24_data_rate rate = RF24_RATE_RES;
 
 	mock()
 		.expectOneCall("rf24_read_register")
@@ -636,7 +636,7 @@ TEST(core, rf24_get_data_rate)
 		RF24_RATE_1M,
 		RF24_RATE_2M,
 		RF24_RATE_250K,
-		RESERVED,
+		RF24_RATE_RES,
 	};
 
 	uint8_t reg[] = {

@@ -43,16 +43,20 @@ struct rf24 {
 #define rf24_payload_size(r)	((r)->payload_size)
 
 enum rf24_crc_mode {
-	RF24_CRC_NONE = 0,
-	RF24_CRC_8_BITS,
-	RF24_CRC_16_BITS,
+	RF24_CRC_MIN	= 0,
+	RF24_CRC_NONE	= 0,
+	RF24_CRC_8_BITS	= 1,
+	RF24_CRC_16_BITS = 2,
+	RF24_CRC_MAX	= 2,
 };
 
 enum rf24_data_rate {
-	RF24_RATE_1M = 0,
-	RF24_RATE_2M,
-	RF24_RATE_250K,
-	RESERVED,
+	RF24_RATE_MIN	= 0,
+	RF24_RATE_250K	= 0,
+	RF24_RATE_1M	= 1,
+	RF24_RATE_2M	= 2,
+	RF24_RATE_MAX	= 2,
+	RF24_RATE_RES	= 3,
 };
 
 enum rf24_pa_level {
