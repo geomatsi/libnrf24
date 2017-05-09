@@ -22,9 +22,13 @@ script:
 - make -f Makefile.utests clean
 
 # build library
-- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 prod
+- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 PLT_FLAGS="-mcpu=cortex-m4 -msoft-float -mthumb -ffunction-sections" prod
 - make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f4 clean
-- make CROSS_COMPILE=avr- TARGET=avr prod
+- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f0 PLT_FLAGS="-mcpu=cortex-m0 -msoft-float -mthumb -ffunction-sections" prod
+- make CROSS_COMPILE=arm-none-eabi- TARGET=stm32f0 clean
+- make CROSS_COMPILE=avr- TARGET=avr PLT_FLAGS="-mmcu=attiny85 -DF_CPU=1000000L" prod
+- make CROSS_COMPILE=avr- TARGET=avr clean
+- make CROSS_COMPILE=avr- TARGET=avr PLT_FLAGS="-mmcu=atmega328p -DF_CPU=16000000L" prod
 - make CROSS_COMPILE=avr- TARGET=avr clean
 - make CROSS_COMPILE= TARGET=x86 prod
 - make CROSS_COMPILE= TARGET=x86 clean
