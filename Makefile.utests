@@ -12,6 +12,10 @@ all: run_tests
 
 #
 
+CFG_FLAGS ?= -DSPI_SINGLE_BYTE -DSPI_MULTI_BYTE
+
+#
+
 SRCS_DIR = src
 TEST_DIR = tests
 
@@ -19,7 +23,7 @@ PROD_INC = include
 TEST_INC = tests/include
 
 CPPFLAGS += -I$(PROD_INC) -I$(TEST_INC)
-CPPFLAGS += -Wall
+CPPFLAGS += -Wall $(CFG_FLAGS)
 
 # TESTS
 
@@ -30,6 +34,7 @@ SPI_TEST_OBJS = \
 	$(TEST_DIR)/spi_tests.o \
 	$(TEST_DIR)/spi_mock.o \
 	$(SRCS_DIR)/rf24_sb_cmds.o \
+	$(SRCS_DIR)/rf24_mb_cmds.o \
 	$(SRCS_DIR)/rf24.o
 
 spi_tests: $(SPI_TEST_OBJS)
@@ -42,6 +47,7 @@ MSPI_TEST_OBJS = \
 	$(TEST_DIR)/main_test.o \
 	$(TEST_DIR)/spi_tests.o \
 	$(TEST_DIR)/mspi_mock.o \
+	$(SRCS_DIR)/rf24_sb_cmds.o \
 	$(SRCS_DIR)/rf24_mb_cmds.o \
 	$(SRCS_DIR)/rf24.o
 
@@ -56,6 +62,8 @@ CORE_TEST_OBJS = \
 	$(TEST_DIR)/core_tests.o \
 	$(TEST_DIR)/uc_tests.o \
 	$(TEST_DIR)/cmd_mock.o \
+	$(SRCS_DIR)/rf24_sb_cmds.o \
+	$(SRCS_DIR)/rf24_mb_cmds.o \
 	$(SRCS_DIR)/rf24.o
 
 core_tests: $(CORE_TEST_OBJS)

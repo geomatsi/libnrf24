@@ -29,7 +29,9 @@ uint8_t mock_spi_xfer_sbyte(uint8_t dat)
 	return mock().intReturnValue();
 }
 
-int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
-{
-	return 0;
-}
+struct mock_ops u_mock_ops = {
+	.mock_csn		= mock_csn,
+	.mock_ce		= mock_ce,
+	.mock_spi_xfer_sbyte	= mock_spi_xfer_sbyte,
+	.mock_spi_xfer_mbyte	= NULL,
+};

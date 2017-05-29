@@ -12,9 +12,11 @@ extern "C"
 #include "rf24_log.h"
 }
 
-extern void mock_csn(int level);
-extern void mock_ce(int level);
-extern uint8_t mock_spi_xfer_sbyte(uint8_t dat);
-extern int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len);
+struct mock_ops {
+	void (*mock_csn)(int level);
+	void (*mock_ce)(int level);
+	uint8_t (*mock_spi_xfer_sbyte)(uint8_t dat);
+	int (*mock_spi_xfer_mbyte)(uint8_t *tx, uint8_t *rx, int len);
+};
 
 #endif /* __SPI_STUB_NRF24_H__ */

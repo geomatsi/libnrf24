@@ -6,12 +6,50 @@
 #include <rf24_delay.h>
 #include <rf24_log.h>
 
-static struct rf24 *nrf;
+extern struct rf24_ops rf24_sb_ops;
+extern struct rf24_ops rf24_mb_ops;
+
+static struct rf24 *nrf = 0;
+
+/* */
 
 static void no_pin(int level)
 {
 
 }
+
+/* */
+
+void rf24_register_ops(struct rf24 *r)
+{
+	if (r->rf24_ops)
+		return;
+
+#if defined(SPI_SINGLE_BYTE) && defined(SPI_MULTI_BYTE)
+
+	assert(r->spi_xfer || r->spi_multi_xfer);
+
+	if (r->spi_multi_xfer)
+		r->rf24_ops = &rf24_mb_ops;
+	else
+		r->rf24_ops = &rf24_sb_ops;
+
+#elif defined(SPI_SINGLE_BYTE) && !defined(SPI_MULTI_BYTE)
+
+	assert(r->spi_xfer);
+	r->rf24_ops = &rf24_sb_ops;
+
+#elif !defined(SPI_SINGLE_BYTE) && defined(SPI_MULTI_BYTE)
+
+	assert(nrf->spi_multi_xfer);
+	nrf->rf24_ops = &rf24_mb_ops;
+
+#else
+#error "SPI_SINGLE_BYTE or SPI_MULTI_BYTE or both flags shall be specified"
+#endif
+}
+
+/* */
 
 void rf24_init(struct rf24 *r)
 {
@@ -24,6 +62,8 @@ void rf24_init(struct rf24 *r)
 
 	if (!nrf->ce)
 		nrf->ce = no_pin;
+
+	rf24_register_ops(nrf);
 
 	nrf->payload_size = RF24_MAX_PAYLOAD_SIZE;
 	nrf->flags = 0;

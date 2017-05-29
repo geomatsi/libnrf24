@@ -5,6 +5,8 @@
 
 #include <spi_mock_rf24.h>
 
+extern struct mock_ops u_mock_ops;
+
 TEST_GROUP(rf24_cmds)
 {
 	struct rf24 *pnrf24;
@@ -15,10 +17,10 @@ TEST_GROUP(rf24_cmds)
 		mock().disable();
 
 		memset(&nrf24, 0x0, sizeof(nrf24));
-		nrf24.csn = mock_csn;
-		nrf24.ce = mock_ce;
-		nrf24.spi_xfer = mock_spi_xfer_sbyte;
-		nrf24.spi_multi_xfer = mock_spi_xfer_mbyte;
+		nrf24.csn = u_mock_ops.mock_csn;
+		nrf24.ce = u_mock_ops.mock_ce;
+		nrf24.spi_xfer = u_mock_ops.mock_spi_xfer_sbyte;
+		nrf24.spi_multi_xfer = u_mock_ops.mock_spi_xfer_mbyte;
 
 		pnrf24 = &nrf24;
 		rf24_init(pnrf24);

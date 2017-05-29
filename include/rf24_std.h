@@ -2,6 +2,7 @@
 #define __NRF24_STD_H__
 
 #include <stdint.h>
+#include <assert.h>
 
 #define BIN(x)	(0b##x)
 

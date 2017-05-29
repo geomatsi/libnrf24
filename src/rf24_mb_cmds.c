@@ -3,10 +3,13 @@
 #include <rf24_cmds.h>
 #include <rf24_std.h>
 
+#if defined(SPI_MULTI_BYTE)
+
 static uint8_t rx[RF24_MAX_PAYLOAD_SIZE + 1];
 static uint8_t tx[RF24_MAX_PAYLOAD_SIZE + 1];
 
-uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
+static uint8_t
+rf24_multi_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
 	memcpy(&tx[1], buf, len);
 	tx[0] = cmd;
@@ -18,7 +21,8 @@ uint8_t rf24_write_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 	return rx[0];
 }
 
-uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
+static uint8_t
+rf24_multi_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 {
 	memset(tx, 0xff, sizeof(tx));
 	tx[0] = cmd;
@@ -32,25 +36,28 @@ uint8_t rf24_read_cmd(struct rf24 *r, uint8_t cmd, uint8_t *buf, uint8_t len)
 	return rx[0];
 }
 
-uint8_t rf24_read_register(struct rf24 *r, uint8_t reg)
+static uint8_t
+rf24_multi_read_register(struct rf24 *r, uint8_t reg)
 {
 	uint8_t val;
 
-	rf24_read_cmd(r, R_REGISTER | (REGISTER_MASK & reg), &val, 1);
+	rf24_multi_read_cmd(r, R_REGISTER | (REGISTER_MASK & reg), &val, 1);
 
 	return val;
 }
 
-uint8_t rf24_write_register(struct rf24 *r, uint8_t reg, uint8_t val)
+static uint8_t
+rf24_multi_write_register(struct rf24 *r, uint8_t reg, uint8_t val)
 {
 	uint8_t status;
 
-	status = rf24_write_cmd(r, W_REGISTER | (REGISTER_MASK & reg), &val, 1);
+	status = rf24_multi_write_cmd(r, W_REGISTER | (REGISTER_MASK & reg), &val, 1);
 
 	return status;
 }
 
-uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
+static uint8_t
+rf24_multi_write_payload(struct rf24 *r, const void *buf, int len)
 {
 	uint8_t dat_len;
 	uint8_t pad_len;
@@ -73,7 +80,8 @@ uint8_t rf24_write_payload(struct rf24 *r, const void *buf, int len)
 	return rx[0];
 }
 
-uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
+static uint8_t
+rf24_multi_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int len)
 {
 	uint8_t dat_len;
 
@@ -93,7 +101,8 @@ uint8_t rf24_write_ack_payload(struct rf24 *r, int pipe, const void *buf, int le
 	return rx[0];
 }
 
-uint8_t rf24_read_payload(struct rf24 *r, void *buf, int len)
+static uint8_t
+rf24_multi_read_payload(struct rf24 *r, void *buf, int len)
 {
 	uint8_t dat_len;
 	uint8_t pad_len;
@@ -113,7 +122,8 @@ uint8_t rf24_read_payload(struct rf24 *r, void *buf, int len)
 	return rx[0];
 }
 
-uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len)
+static uint8_t
+rf24_multi_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int len)
 {
 	const uint8_t *addr = &buf[len];
 	int pos;
@@ -129,3 +139,16 @@ uint8_t rf24_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int 
 
 	return rx[0];
 }
+
+struct rf24_ops rf24_mb_ops = {
+	.write_cmd		= rf24_multi_write_cmd,
+	.read_cmd		= rf24_multi_read_cmd,
+	.read_register		= rf24_multi_read_register,
+	.write_register		= rf24_multi_write_register,
+	.write_payload		= rf24_multi_write_payload,
+	.write_ack_payload	= rf24_multi_write_ack_payload,
+	.read_payload		= rf24_multi_read_payload,
+	.write_address		= rf24_multi_write_address,
+};
+
+#endif	/* SPI_MULTI_BYTE */

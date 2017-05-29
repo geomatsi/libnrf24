@@ -34,6 +34,8 @@ struct rf24 {
 	/* cached p0 rx/tx address to switch between PRX and PTX modes */
 	uint8_t p0_tx_addr[RF24_MAX_ADDR_LEN];
 	uint8_t p0_rx_addr[RF24_MAX_ADDR_LEN];
+
+	void *rf24_ops;
 };
 
 #define rf24_is_tx_noack(r)	((r)->flags & RF24_TX_NOACK)

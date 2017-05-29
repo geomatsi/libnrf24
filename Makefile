@@ -6,7 +6,8 @@
 #   - TARGET: target platform identifier to add to library name
 #   - PLT_FLAGS: platform-specific compile flags, e.g. -mcpu=...
 #   - CFG_FLAGS: linbrf24 configuration switches
-#     -- TODO
+#     -- SPI_SINGLE_BYTE
+#     -- SPI_MULTI_BYTE
 #
 
 LIBNAME = libnrf24
@@ -26,6 +27,10 @@ all: prod
 
 #
 
+CFG_FLAGS ?= -DSPI_SINGLE_BYTE
+
+#
+
 SRCS_DIR = src
 PROD_INC = include
 TEST_INC = tests/include
@@ -35,23 +40,19 @@ CPPFLAGS += -Wall $(PLT_FLAGS) $(CFG_FLAGS)
 
 ARFLAGS	= rcs
 
-# LIBRARY
+#
 
-SB_OBJS = \
+OBJS = \
 	$(SRCS_DIR)/rf24.o \
 	$(SRCS_DIR)/rf24_sb_cmds.o \
-
-$(LIBNAME)_$(TARGET).a: $(SB_OBJS)
-	$(AR) $(ARFLAGS) "$@" $(SB_OBJS)
-
-MB_OBJS = \
-	$(SRCS_DIR)/rf24.o \
 	$(SRCS_DIR)/rf24_mb_cmds.o \
 
-$(LIBNAME)_mb_$(TARGET).a: $(MB_OBJS)
-	$(AR) $(ARFLAGS) "$@" $(MB_OBJS)
+$(LIBNAME)_$(TARGET).a: $(OBJS)
+	$(AR) $(ARFLAGS) "$@" $(OBJS)
 
-prod: $(LIBNAME)_$(TARGET).a $(LIBNAME)_mb_$(TARGET).a
+#
+
+prod: $(LIBNAME)_$(TARGET).a
 
 PREFIX ?= /usr/local
 
@@ -59,13 +60,11 @@ install: prod
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/include
 	cp $(LIBNAME)_$(TARGET).a $(DESTDIR)$(PREFIX)/lib/$(LIBNAME).a
-	cp $(LIBNAME)_mb_$(TARGET).a $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)_mb.a
 	cp $(PROD_INC)/nRF24L01.h $(DESTDIR)$(PREFIX)/include/
 	cp $(PROD_INC)/RF24.h $(DESTDIR)$(PREFIX)/include/
 
 uninstall:
 	rm -rf $(DESTDIR)$(PREFIX)/lib/$(LIBNAME).a
-	rm -rf $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)_mb.a
 	rm -rf $(DESTDIR)$(PREFIX)/include/nRF24L01.h
 	rm -rf $(DESTDIR)$(PREFIX)/include/RF24.h
 
@@ -74,7 +73,6 @@ uninstall:
 clean:
 	rm -f $(SRCS_DIR)/*.o
 	rm -f $(LIBNAME)_$(TARGET).a
-	rm -f $(LIBNAME)_mb_$(TARGET).a
 
 .PHONY: uninstall
 .PHONY: install

@@ -10,14 +10,27 @@ TEST_GROUP(usecases)
 	struct rf24 *pnrf24;
 	struct rf24 nrf24;
 
+	struct rf24_ops mock_ops = {
+		.write_cmd		= rf24_mock_write_cmd,
+		.read_cmd		= rf24_mock_read_cmd,
+		.read_register		= rf24_mock_read_register,
+		.write_register		= rf24_mock_write_register,
+		.write_payload		= rf24_mock_write_payload,
+		.write_ack_payload	= rf24_mock_write_ack_payload,
+		.read_payload		= rf24_mock_read_payload,
+		.write_address		= rf24_mock_write_address,
+	};
+
 	void setup()
 	{
 		mock().disable();
 
 		memset(&nrf24, 0x0, sizeof(nrf24));
 		nrf24.ce = mock_ce;
+		nrf24.rf24_ops = &mock_ops;
 
 		pnrf24 = &nrf24;
+
 		rf24_init(pnrf24);
 
 		mock().enable();
