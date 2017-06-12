@@ -14,7 +14,6 @@ extern struct rf24_ops rf24_sb_ops;
 extern struct rf24_ops rf24_mb_ops;
 #endif
 
-static struct rf24 *nrf = 0;
 
 /* */
 
@@ -60,28 +59,26 @@ void rf24_init(struct rf24 *r)
 {
 	int i;
 
-	nrf = r;
+	if (!r->csn)
+		r->csn = no_pin;
 
-	if (!nrf->csn)
-		nrf->csn = no_pin;
+	if (!r->ce)
+		r->ce = no_pin;
 
-	if (!nrf->ce)
-		nrf->ce = no_pin;
+	rf24_register_ops(r);
 
-	rf24_register_ops(nrf);
-
-	nrf->payload_size = RF24_MAX_PAYLOAD_SIZE;
-	nrf->flags = 0;
+	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
+	r->flags = 0;
 
 	for (i = 0; i < RF24_MAX_ADDR_LEN; i++) {
-		nrf->p0_tx_addr[i] = 0;
-		nrf->p0_rx_addr[i] = 0;
+		r->p0_tx_addr[i] = 0;
+		r->p0_rx_addr[i] = 0;
 	}
 
 	r->ce(0);
 	delay_ms(10);
 
-	rf24_activate_features(nrf);
+	rf24_activate_features(r);
 
 	/* default settings:
 	 *   - automatic retransmit delay: 1500 uS
@@ -93,17 +90,17 @@ void rf24_init(struct rf24 *r)
 	 *   - auto ack enabled
 	 *   - dynamic payload: disabled
 	 */
-	rf24_set_retries(nrf, BIN(0100), BIN(1111));
-	rf24_set_pa_level(nrf, RF24_PA_MAX);
-	rf24_set_data_rate(nrf, RF24_RATE_1M);
-	rf24_set_crc_mode(nrf, RF24_CRC_16_BITS);
-	rf24_set_channel(nrf, 76);
-	rf24_set_payload_size(nrf, RF24_MAX_PAYLOAD_SIZE);
+	rf24_set_retries(r, BIN(0100), BIN(1111));
+	rf24_set_pa_level(r, RF24_PA_MAX);
+	rf24_set_data_rate(r, RF24_RATE_1M);
+	rf24_set_crc_mode(r, RF24_CRC_16_BITS);
+	rf24_set_channel(r, 76);
+	rf24_set_payload_size(r, RF24_MAX_PAYLOAD_SIZE);
 	/* disable dynamic payload */
-	rf24_write_register(nrf, DYNPD, 0);
+	rf24_write_register(r, DYNPD, 0);
 
 	/* reset current status */
-	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
+	rf24_write_register(r, STATUS, STATUS_CLEAR);
 
 	/* flush buffers */
 	rf24_flush_rx(r);
@@ -504,7 +501,7 @@ void rf24_start_ptx(struct rf24 *r)
 	rf24_write_register(r, CONFIG, reg);
 
 	/* reset current status */
-	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
+	rf24_write_register(r, STATUS, STATUS_CLEAR);
 
 	/* Setup proper TX and RX0 addresses when switch to PTX:
 	 * it is possible that they could have been changed
@@ -555,7 +552,7 @@ void rf24_start_prx(struct rf24 *r)
 	rf24_write_register(r, CONFIG, reg | CONFIG_PRIM_RX);
 
 	/* reset current status */
-	rf24_write_register(nrf, STATUS, STATUS_CLEAR);
+	rf24_write_register(r, STATUS, STATUS_CLEAR);
 
 	/* Setup proper TX and RX0 addresses when switch to PRX:
 	 * it is possible that they could have been changed
