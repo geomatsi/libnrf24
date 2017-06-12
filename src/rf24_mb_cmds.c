@@ -1,5 +1,3 @@
-#include <string.h>
-
 #include <rf24_cmds.h>
 #include <rf24_std.h>
 

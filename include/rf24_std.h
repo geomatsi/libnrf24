@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <assert.h>
+#include <string.h>
 
 #define BIN(x)	(0b##x)
 
