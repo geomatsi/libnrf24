@@ -138,7 +138,7 @@ rf24_multi_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int le
 	return rx[0];
 }
 
-struct rf24_ops rf24_mb_ops = {
+static struct rf24_ops rf24_mb_ops = {
 	.write_cmd		= rf24_multi_write_cmd,
 	.read_cmd		= rf24_multi_read_cmd,
 	.read_register		= rf24_multi_read_register,
@@ -148,5 +148,11 @@ struct rf24_ops rf24_mb_ops = {
 	.read_payload		= rf24_multi_read_payload,
 	.write_address		= rf24_multi_write_address,
 };
+
+struct rf24_ops *rf24_mb_ops_p = &rf24_mb_ops;
+
+#else	/* SPI_MULTI_BYTE */
+
+struct rf24_ops *rf24_mb_ops_p = NULL;
 
 #endif	/* SPI_MULTI_BYTE */

@@ -6,14 +6,16 @@
 #include <rf24_delay.h>
 #include <rf24_log.h>
 
-#if defined(SPI_SINGLE_BYTE)
-extern struct rf24_ops rf24_sb_ops;
+/* */
+
+#if !defined(SPI_SINGLE_BYTE) && !defined(SPI_MULTI_BYTE)
+#error "SPI_SINGLE_BYTE or SPI_MULTI_BYTE or both flags shall be specified"
 #endif
 
-#if defined(SPI_MULTI_BYTE)
-extern struct rf24_ops rf24_mb_ops;
-#endif
+/* */
 
+extern struct rf24_ops *rf24_sb_ops_p;
+extern struct rf24_ops *rf24_mb_ops_p;
 
 /* */
 
@@ -26,31 +28,31 @@ static void no_pin(int level)
 
 void rf24_register_ops(struct rf24 *r)
 {
+	/* top priority: custom ops */
 	if (r->rf24_ops)
 		return;
 
-#if defined(SPI_SINGLE_BYTE) && defined(SPI_MULTI_BYTE)
+	if (!r->spi_xfer && !r->spi_multi_xfer) {
+		rf24_err("spi xfer function not defined\n");
+		goto ops_err;
+	}
 
-	assert(r->spi_xfer || r->spi_multi_xfer);
+	/* next priority: multi-byte ops */
+	if (r->spi_multi_xfer && rf24_mb_ops_p) {
+		r->rf24_ops = rf24_mb_ops_p;
+		return;
+	}
 
-	if (r->spi_multi_xfer)
-		r->rf24_ops = &rf24_mb_ops;
-	else
-		r->rf24_ops = &rf24_sb_ops;
+	/* last resort: single-byte ops */
+	if (r->spi_xfer && rf24_sb_ops_p) {
+		r->rf24_ops = rf24_sb_ops_p;
+		return;
+	}
 
-#elif defined(SPI_SINGLE_BYTE) && !defined(SPI_MULTI_BYTE)
+	rf24_err("library build is not compatible with app spi xfer setup\n");
 
-	assert(r->spi_xfer);
-	r->rf24_ops = &rf24_sb_ops;
-
-#elif !defined(SPI_SINGLE_BYTE) && defined(SPI_MULTI_BYTE)
-
-	assert(nrf->spi_multi_xfer);
-	nrf->rf24_ops = &rf24_mb_ops;
-
-#else
-#error "SPI_SINGLE_BYTE or SPI_MULTI_BYTE or both flags shall be specified"
-#endif
+ops_err:
+	assert(0);
 }
 
 /* */

@@ -155,7 +155,7 @@ rf24_single_write_address(struct rf24 *r, uint8_t reg, const uint8_t *buf, int l
 	return status;
 }
 
-struct rf24_ops rf24_sb_ops = {
+static struct rf24_ops rf24_sb_ops = {
 	.write_cmd		= rf24_single_write_cmd,
 	.read_cmd		= rf24_single_read_cmd,
 	.read_register		= rf24_single_read_register,
@@ -165,5 +165,11 @@ struct rf24_ops rf24_sb_ops = {
 	.read_payload		= rf24_single_read_payload,
 	.write_address		= rf24_single_write_address,
 };
+
+struct rf24_ops *rf24_sb_ops_p = &rf24_sb_ops;
+
+#else	/* SPI_SINGLE_BYTE */
+
+struct rf24_ops *rf24_sb_ops_p = NULL;
 
 #endif	/* SPI_SINGLE_BYTE */
