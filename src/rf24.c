@@ -48,7 +48,7 @@ void rf24_init(struct rf24 *r)
 	int i;
 
 	/* TODO: return error for invalid user input */
-	if (!r->spi_xfer && !r->spi_multi_xfer) {
+	if (!r->rf24_ops && !r->spi_xfer && !r->spi_multi_xfer) {
 		rf24_err("undefined app spi xfer ops\n");
 		return;
 	}
