@@ -8,12 +8,6 @@
 
 /* */
 
-#if !defined(SPI_SINGLE_BYTE) && !defined(SPI_MULTI_BYTE)
-#error "SPI_SINGLE_BYTE or SPI_MULTI_BYTE or both flags shall be specified"
-#endif
-
-/* */
-
 extern struct rf24_ops *rf24_sb_ops_p;
 extern struct rf24_ops *rf24_mb_ops_p;
 

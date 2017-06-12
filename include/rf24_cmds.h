@@ -1,8 +1,16 @@
 #ifndef __NRF24_CMDS_H__
 #define __NRF24_CMDS_H__
 
-#include "nRF24L01.h"
+#include <nRF24L01.h>
 #include <RF24.h>
+
+/* */
+
+#if !defined(SPI_SINGLE_BYTE) && !defined(SPI_MULTI_BYTE)
+#error "SPI_SINGLE_BYTE or SPI_MULTI_BYTE or both flags shall be specified"
+#endif
+
+/* */
 
 struct rf24_ops {
 	uint8_t (*write_cmd)(struct rf24 *r, uint8_t cmd, uint8_t* buf, uint8_t len);
