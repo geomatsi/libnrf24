@@ -26,33 +26,25 @@ static void no_pin(int level)
 
 /* */
 
-void rf24_register_ops(struct rf24 *r)
+int rf24_register_ops(struct rf24 *r)
 {
-	/* top priority: custom ops */
+	/* priority I: custom ops */
 	if (r->rf24_ops)
-		return;
+		return 0;
 
-	if (!r->spi_xfer && !r->spi_multi_xfer) {
-		rf24_err("spi xfer function not defined\n");
-		goto ops_err;
-	}
-
-	/* next priority: multi-byte ops */
+	/* priority II: multi-byte ops */
 	if (r->spi_multi_xfer && rf24_mb_ops_p) {
 		r->rf24_ops = rf24_mb_ops_p;
-		return;
+		return 0;
 	}
 
-	/* last resort: single-byte ops */
+	/* priority III: single-byte ops */
 	if (r->spi_xfer && rf24_sb_ops_p) {
 		r->rf24_ops = rf24_sb_ops_p;
-		return;
+		return 0;
 	}
 
-	rf24_err("library build is not compatible with app spi xfer setup\n");
-
-ops_err:
-	assert(0);
+	return -1;
 }
 
 /* */
@@ -61,13 +53,23 @@ void rf24_init(struct rf24 *r)
 {
 	int i;
 
+	/* TODO: return error for invalid user input */
+	if (!r->spi_xfer && !r->spi_multi_xfer) {
+		rf24_err("undefined app spi xfer ops\n");
+		return;
+	}
+
+	/* TODO: return error for invalid user input */
+	if (rf24_register_ops(r)) {
+		rf24_err("incompatible app spi xfer ops\n");
+		return;
+	}
+
 	if (!r->csn)
 		r->csn = no_pin;
 
 	if (!r->ce)
 		r->ce = no_pin;
-
-	rf24_register_ops(r);
 
 	r->payload_size = RF24_MAX_PAYLOAD_SIZE;
 	r->flags = 0;
