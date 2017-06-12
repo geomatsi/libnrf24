@@ -6,8 +6,8 @@
 #   - TARGET: target platform identifier to add to library name
 #   - PLT_FLAGS: platform-specific compile flags, e.g. -mcpu=...
 #   - CFG_FLAGS: linbrf24 configuration switches
-#     -- SPI_SINGLE_BYTE
-#     -- SPI_MULTI_BYTE
+#     -- SPI_SINGLE_BYTE -  build with support for single byte SPI xfers
+#     -- SPI_MULTI_BYTE - build with support for multi-byte SPI xfers
 #
 
 LIBNAME = libnrf24
@@ -28,6 +28,8 @@ all: prod
 #
 
 CFG_FLAGS ?= -DSPI_SINGLE_BYTE
+#CFG_FLAGS ?= -DSPI_MULTI_BYTE
+#CFG_FLAGS ?= -DSPI_SINGLE_BYTE -DSPI_MULTI_BYTE
 
 #
 

@@ -6,8 +6,13 @@
 #include <rf24_delay.h>
 #include <rf24_log.h>
 
+#if defined(SPI_SINGLE_BYTE)
 extern struct rf24_ops rf24_sb_ops;
+#endif
+
+#if defined(SPI_MULTI_BYTE)
 extern struct rf24_ops rf24_mb_ops;
+#endif
 
 static struct rf24 *nrf = 0;
 
