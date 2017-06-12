@@ -13,24 +13,24 @@ void delay_us(int usec)
 
 }
 
-void mock_csn(int level)
+static void mock_csn(int level)
 {
 	mock().actualCall("csn").withParameter("level", level);
 }
 
-void mock_ce(int level)
+static void mock_ce(int level)
 {
 	mock().actualCall("ce").withParameter("level", level);
 }
 
-uint8_t mock_spi_xfer_sbyte(uint8_t dat)
+static uint8_t mock_spi_xfer_sbyte(uint8_t dat)
 {
 	mock().actualCall("spi_xfer_sbyte").withParameter("dat", dat);
 	return mock().intReturnValue();
 }
 
 /* mock mbyte spi xfer using sbyte xfers to reuse spi_tests */
-int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
+static int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
 {
 	int pos;
 
@@ -44,6 +44,6 @@ int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
 struct mock_ops u_mock_ops = {
 	.mock_csn		= mock_csn,
 	.mock_ce		= mock_ce,
-	.mock_spi_xfer_sbyte	= mock_spi_xfer_sbyte,
+	.mock_spi_xfer_sbyte	= NULL,
 	.mock_spi_xfer_mbyte	= mock_spi_xfer_mbyte,
 };

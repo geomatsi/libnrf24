@@ -103,8 +103,3 @@ void mock_ce(int level)
 {
 	mock().actualCall("ce").withParameter("level", level);
 }
-
-uint8_t mock_spi_xfer_sbyte(uint8_t dat)
-{
-	return 0;
-};

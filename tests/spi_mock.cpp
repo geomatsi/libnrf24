@@ -13,17 +13,17 @@ void delay_us(int usec)
 
 }
 
-void mock_csn(int level)
+static void mock_csn(int level)
 {
 	mock().actualCall("csn").withParameter("level", level);
 }
 
-void mock_ce(int level)
+static void mock_ce(int level)
 {
 	mock().actualCall("ce").withParameter("level", level);
 }
 
-uint8_t mock_spi_xfer_sbyte(uint8_t dat)
+static uint8_t mock_spi_xfer_sbyte(uint8_t dat)
 {
 	mock().actualCall("spi_xfer_sbyte").withParameter("dat", dat);
 	return mock().intReturnValue();

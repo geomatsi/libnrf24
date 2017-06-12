@@ -26,9 +26,6 @@ TEST_GROUP(core)
 		mock().disable();
 
 		memset(&nrf24, 0x0, sizeof(nrf24));
-		nrf24.csn = mock_csn;
-		nrf24.ce = mock_ce;
-		nrf24.spi_xfer = mock_spi_xfer_sbyte;
 		nrf24.rf24_ops = &mock_ops;
 
 		pnrf24 = &nrf24;
@@ -51,10 +48,6 @@ TEST(core, init)
 	mock().disable();
 
 	CHECK_EQUAL(RF24_MAX_PAYLOAD_SIZE, pnrf24->payload_size);
-
-	POINTERS_EQUAL(mock_spi_xfer_sbyte, pnrf24->spi_xfer);
-	POINTERS_EQUAL(mock_csn, pnrf24->csn);
-	POINTERS_EQUAL(mock_ce, pnrf24->ce);
 }
 
 IGNORE_TEST(core, init_empty_methods)
