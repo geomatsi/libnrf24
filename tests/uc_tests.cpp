@@ -5,31 +5,36 @@
 
 #include <cmd_mock_rf24.h>
 
+extern struct rf24_ops u_mock_rf24_ops;
+
 TEST_GROUP(usecases)
 {
 	struct rf24 *pnrf24;
-	struct rf24 nrf24;
 
-	struct rf24_ops mock_ops = {
-		.write_cmd		= rf24_mock_write_cmd,
-		.read_cmd		= rf24_mock_read_cmd,
-		.read_register		= rf24_mock_read_register,
-		.write_register		= rf24_mock_write_register,
-		.write_payload		= rf24_mock_write_payload,
-		.write_ack_payload	= rf24_mock_write_ack_payload,
-		.read_payload		= rf24_mock_read_payload,
-		.write_address		= rf24_mock_write_address,
-	};
+	static void mock_ce(int level)
+	{
+		mock().actualCall("ce").withParameter("level", level);
+	}
+
+	static void delay_ms(int msec)
+	{
+		mock().actualCall("delay_ms").withParameter("msec", msec);
+	}
+
+	static void delay_us(int usec)
+	{
+		mock().actualCall("delay_us").withParameter("usec", usec);
+	}
 
 	void setup()
 	{
 		mock().disable();
 
-		memset(&nrf24, 0x0, sizeof(nrf24));
-		nrf24.ce = mock_ce;
-		nrf24.rf24_ops = &mock_ops;
-
-		pnrf24 = &nrf24;
+		pnrf24 = (struct rf24 *)calloc(1, sizeof(*pnrf24));
+		pnrf24->rf24_ops = &u_mock_rf24_ops;
+		pnrf24->delay_ms = delay_ms;
+		pnrf24->delay_us = delay_us;
+		pnrf24->ce = mock_ce;
 
 		rf24_init(pnrf24);
 
@@ -41,6 +46,7 @@ TEST_GROUP(usecases)
 	void teardown()
 	{
 		mock().clear();
+		free(pnrf24);
 	}
 };
 

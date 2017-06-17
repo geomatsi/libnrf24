@@ -3,16 +3,6 @@
 
 #include <spi_mock_rf24.h>
 
-void delay_ms(int msec)
-{
-
-}
-
-void delay_us(int usec)
-{
-
-}
-
 static void mock_csn(int level)
 {
 	mock().actualCall("csn").withParameter("level", level);
@@ -21,6 +11,16 @@ static void mock_csn(int level)
 static void mock_ce(int level)
 {
 	mock().actualCall("ce").withParameter("level", level);
+}
+
+static void mock_delay_ms(int msec)
+{
+
+}
+
+static void mock_delay_us(int usec)
+{
+
 }
 
 static uint8_t mock_spi_xfer_sbyte(uint8_t dat)
@@ -42,6 +42,8 @@ static int mock_spi_xfer_mbyte(uint8_t *tx, uint8_t *rx, int len)
 }
 
 struct mock_ops u_mock_ops = {
+	.mock_delay_ms		= mock_delay_ms,
+	.mock_delay_us		= mock_delay_us,
 	.mock_csn		= mock_csn,
 	.mock_ce		= mock_ce,
 	.mock_spi_xfer_sbyte	= NULL,

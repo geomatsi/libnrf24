@@ -23,7 +23,7 @@ PROD_INC = include
 TEST_INC = tests/include
 
 CPPFLAGS += -I$(PROD_INC) -I$(TEST_INC)
-CPPFLAGS += -Wall $(CFG_FLAGS)
+CPPFLAGS += -g -Wall $(CFG_FLAGS)
 
 # TESTS
 
