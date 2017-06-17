@@ -3,7 +3,6 @@
 
 #include <rf24_cmds.h>
 #include <rf24_std.h>
-#include <rf24_delay.h>
 #include <rf24_log.h>
 
 /* */
@@ -74,7 +73,7 @@ void rf24_init(struct rf24 *r)
 	}
 
 	r->ce(0);
-	delay_ms(10);
+	r->delay_ms(10);
 
 	rf24_activate_features(r);
 
@@ -242,7 +241,7 @@ void rf24_power_up(struct rf24 *r)
 		rf24_write_register(r, CONFIG, reg);
 
 		/* nRF24L01+ spec: max start-up time 1.5ms */
-		delay_ms(2);
+		r->delay_ms(2);
 	}
 }
 
@@ -567,7 +566,7 @@ void rf24_start_prx(struct rf24 *r)
 	/* from nRF24L01+ spec. Fig.3 (Radio control state diagram):
 	 * RX setting takes ~130us
 	 */
-	delay_us(200);
+	r->delay_us(200);
 }
 
 int rf24_rx_ready(struct rf24 *r, int *ppipe)
@@ -648,7 +647,7 @@ enum rf24_tx_status rf24_send_async(struct rf24 *r, void *buf, int len)
 	 * a payload in the TX FIFO and a high pulse on the CE for more than 10 us.
 	 */
 	r->ce(1);
-	delay_us(20);
+	r->delay_us(20);
 	r->ce(0);
 
 	return RF24_TX_OK;

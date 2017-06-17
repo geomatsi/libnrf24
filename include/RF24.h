@@ -23,6 +23,8 @@
 #define RF24_ACK_PAYLOAD	(0x1 << 4)
 
 struct rf24 {
+	void	(*delay_ms)(int);
+	void	(*delay_us)(int);
 	void    (*csn)(int level);
 	void    (*ce)(int level);
 	uint8_t (*spi_xfer)(uint8_t dat);
