@@ -1,0 +1,2 @@
+option('single_byte_spi', type : 'boolean', value : true)
+option('multi_byte_spi', type : 'boolean', value : true)
