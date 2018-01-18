@@ -11,5 +11,10 @@ if get_option('multi_byte_spi')
 endif
 
 
-libnrf24 = static_library('nrf24', src, include_directories : main_inc, install : 'true')
+libnrf24 = static_library('nrf24', src,
+	include_directories : main_inc,
+	install : true,
+	pic : false,
+)
+
 libnrf24_dep = declare_dependency(link_with : libnrf24, include_directories : main_inc)
